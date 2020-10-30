@@ -3,8 +3,13 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
+import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.geometry.position;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
+import org.firstinspires.ftc.teamcode.vision.RingDetector;
+import org.openftc.easyopencv.OpenCvCamera;
+import org.openftc.easyopencv.OpenCvCameraFactory;
+import org.openftc.easyopencv.OpenCvCameraRotation;
 
 @Autonomous
 public class RedLeft extends auto {
@@ -14,7 +19,7 @@ public class RedLeft extends auto {
     private position power_shot_1 = new position(power_shot_general_position.getX(),power_shot_general_position.getY(),Math.toRadians(-160));
     private position power_shot_2 = new position(power_shot_general_position.getX(),power_shot_general_position.getY(),Math.toRadians(-155));
     private position power_shot_3 = new position(power_shot_general_position.getX(),power_shot_general_position.getY(),Math.toRadians(-150));
-    private position wobble_goal_spot = new position(78,-15,Math.toRadians(170));
+    private position wobble_goal_spot;
     private position line = new position(75,-25,Math.toRadians(0));
     private double arm_position = 0;
     private long timeOfWobbleDelivery1Start = 0;
@@ -29,13 +34,50 @@ public class RedLeft extends auto {
     private long shooter_actuation_time = 400;
     private long timeForWobbleDelivery = 3 * 1000;
     private long timeOfWobblePlace = 0;
-
+    private RingDetector.Height stack;
 
     @Override
     public void runOpMode() {
         SampleMecanumDrive roadrunnerOdometry = new SampleMecanumDrive(hardwareMap);
 
+        int cameraMonitorViewId = hardwareMap.appContext.getResources().getIdentifier("cameraMonitorViewId", "id", hardwareMap.appContext.getPackageName());
+        webcam = OpenCvCameraFactory.getInstance().createWebcam(hardwareMap.get(WebcamName.class, "Webcam 1"), cameraMonitorViewId);
+        webcam.setPipeline(new RingDetector());
+        webcam.openCameraDeviceAsync(new OpenCvCamera.AsyncCameraOpenListener()
+        {
+            @Override
+            public void onOpened()
+            {
+
+                webcam.startStreaming(320, 240, OpenCvCameraRotation.UPRIGHT);
+            }
+        });
+
         initialize();
+
+
+        while (!opModeIsActive()) {
+            stack = RingDetector.height;
+            switch (stack) {
+                case ZERO:
+                    wobble_goal_spot = new position(68,6,Math.toRadians(170));
+                    break;
+                case ONE:
+                    wobble_goal_spot = new position(78,-15,Math.toRadians(170));
+                    break;
+                case FOUR:
+                    wobble_goal_spot = new position(88,6,Math.toRadians(170));
+                    break;
+                default:
+                    // default to zone B because it is cute
+                    wobble_goal_spot = new position(78,-15,Math.toRadians(170));
+                    break;
+
+            }
+            telemetry.addData("ring height is: ",stack);
+            telemetry.update();
+        }
+        waitForStart();
         while (opModeIsActive()) {
 
             roadrunnerOdometry.updatePoseEstimate();
@@ -134,6 +176,7 @@ public class RedLeft extends auto {
             telemetry.addData("current y",robot.robotPose.getY());
             telemetry.addData("angle",robot.getAngleIMU());
             telemetry.addData("current auto state",AUTO_STATE);
+            telemetry.addData("stack is: ",stack);
             telemetry.update();
 
         }

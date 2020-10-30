@@ -3,9 +3,12 @@ package org.firstinspires.ftc.teamcode.autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.teamcode.RobotClass;
+import org.openftc.easyopencv.OpenCvCamera;
 
 public class auto extends LinearOpMode {
     public RobotClass robot = new RobotClass();
+
+    OpenCvCamera webcam;
 
     @Override
     public void runOpMode() {
@@ -16,7 +19,6 @@ public class auto extends LinearOpMode {
         robot.setWristAndClawForAutoINIT();
         telemetry.addData("ready to start!","press play!");
         telemetry.update();
-        waitForStart();
     }
     public enum auto_states {
         START,

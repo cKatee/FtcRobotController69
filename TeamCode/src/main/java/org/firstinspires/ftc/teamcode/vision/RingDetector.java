@@ -11,8 +11,8 @@ public class RingDetector extends OpenCvPipeline {
     public static Height height = Height.NOT_SCANNED;
     private Mat mat = new Mat();
     private Mat ret = new Mat();
-    private Scalar lowerOrange = new Scalar(0.0, 80.0, 150.0, 255.0);
-    private Scalar upperOrange = new Scalar(100.0, 170.0, 255.0,255.0);
+    private Scalar lowerOrange = new Scalar(40, 0, 0, 255.0);
+    private Scalar upperOrange = new Scalar(255, 200, 85, 255.0);
     private double CAMERA_WIDTH = 320;
     private int HORIZON = (int)((100.0 / 320.0) * CAMERA_WIDTH);
     private double MIN_WIDTH = (50.0 / 320.0) * CAMERA_WIDTH;
@@ -81,7 +81,7 @@ public class RingDetector extends OpenCvPipeline {
     }
 
 
-    private enum Height {
+    public enum Height {
         ZERO, ONE, FOUR, NOT_SCANNED
     }
 }
