@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
 import org.firstinspires.ftc.teamcode.RobotClass;
-import org.firstinspires.ftc.teamcode.vision.Gaming;
+import org.firstinspires.ftc.teamcode.vision.OpenCVHIGHGOAL;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
@@ -38,7 +38,7 @@ public class TurnToTargetOpenCV extends LinearOpMode {
          * of a frame from the camera. Note that switching pipelines on-the-fly
          * (while a streaming session is in flight) *IS* supported.
          */
-        webcam.setPipeline(new Gaming());
+        webcam.setPipeline(new OpenCVHIGHGOAL());
 
         /*
          * Open the connection to the camera device. New in v1.4.0 is the ability
@@ -86,10 +86,10 @@ public class TurnToTargetOpenCV extends LinearOpMode {
         while (opModeIsActive())
         {
             double visionPixelTarget = 320 / 2;
-            double visionError = visionPixelTarget - Gaming.targetPoint.x;
+            double visionError = visionPixelTarget - OpenCVHIGHGOAL.targetPoint.x;
             robot.robotRelative(0,0,visionError * 0.1);
-            telemetry.addData("vision x",Gaming.targetPoint.x);
-            telemetry.addData("vision y",Gaming.targetPoint.y);
+            telemetry.addData("vision x", OpenCVHIGHGOAL.targetPoint.x);
+            telemetry.addData("vision y", OpenCVHIGHGOAL.targetPoint.y);
             telemetry.addData("error",visionError);
             telemetry.addData("Frame Count", webcam.getFrameCount());
             telemetry.addData("FPS", String.format("%.2f", webcam.getFps()));

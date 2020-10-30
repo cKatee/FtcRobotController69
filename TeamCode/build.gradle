@@ -27,9 +27,7 @@ repositories {
 
 dependencies {
     annotationProcessor files('lib/OpModeAnnotationProcessor.jar')
-    //implementation 'com.spartronics4915.lib:ftc265:2.0.1'
     implementation 'com.opencsv:opencsv:4.6'
     compile group: 'org.ejml', name: 'ejml-all', version: '0.39'
-    implementation 'org.openftc:easyopencv:1.4.1'
 
 }

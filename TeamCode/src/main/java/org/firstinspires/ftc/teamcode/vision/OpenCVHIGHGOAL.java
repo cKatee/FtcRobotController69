@@ -21,6 +21,7 @@
 
 package org.firstinspires.ftc.teamcode.vision;
 
+
 import org.opencv.core.*;
 import org.opencv.imgproc.Imgproc;
 import org.openftc.easyopencv.OpenCvPipeline;
@@ -28,7 +29,7 @@ import org.openftc.easyopencv.OpenCvPipeline;
 import static org.opencv.core.Core.inRange;
 import static org.opencv.core.Core.minMaxLoc;
 
-public class Gaming extends OpenCvPipeline {
+public class OpenCVHIGHGOAL extends OpenCvPipeline {
     boolean viewportPaused = false;
     public static boolean forBlue = true;
     public static Point targetPoint = new Point(0,0);
