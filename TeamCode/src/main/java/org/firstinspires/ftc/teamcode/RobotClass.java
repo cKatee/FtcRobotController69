@@ -85,7 +85,8 @@ public class RobotClass {
     public final double SHOOTER_ARM_IN = 0.53;
     public final double SHOOTER_ARM_OUT = 0.8;
 
-    public final double flywheelticksperminute = (6100 * 28) / 60;
+    public final double flywheelticksperminute = (5800 * 28) / 60;
+    public final double powershotflywheelticksperminute = (5000 * 28) / 60;
 
     private double i_error = 0;
     private double d_error = 0;
@@ -252,6 +253,20 @@ public class RobotClass {
     }
 
     /**
+     * get the angle from roadrunner in the same form as that from the imu
+     * @return corrected angle in radians
+     */
+    public double getAngleProper() {
+        double rr_angle = 0;
+        if (robotPose.getAngleDegrees() >= 180 && robotPose.getAngleDegrees() <= 360) {
+            rr_angle = 360 - robotPose.getAngleDegrees();
+        } else {
+            rr_angle = -robotPose.getAngleDegrees();
+        }
+        return Math.toRadians(rr_angle);
+    }
+
+    /**
      *
      * @return get correct imu angle
      */
@@ -379,7 +394,7 @@ public class RobotClass {
         double currentTime = (double) System.currentTimeMillis() / 1000;
         double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
         double kd = 0.12627 * 0.01;
-        double kpTurn = 2;
+        double kpTurn = 0.65;
 
         double xError = targetPose.getX() - robotPose.getX();
         double yError = targetPose.getY() - robotPose.getY();
@@ -408,13 +423,55 @@ public class RobotClass {
         yPower = -yPower; 
         turnPower = headingError * kpTurn;
 
-        FieldRelative(xPower,yPower,headingError);
+        FieldRelative(xPower,yPower,turnPower);
 
         timeOfLastupdate = currentTime;
         last_error_x = xError;
         last_error_y = yError;
     }
+    /**
+     * the function field relative drive to point method
+     * @param targetPose the current target the robot is driving towards
+     */
+    public void goodDriveToPointWithMaxSpeed(position targetPose,double max_speed) {
+        double currentTime = (double) System.currentTimeMillis() / 1000;
+        double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
+        double kd = 0.12627 * 0.01;
+        double kpTurn = 2;
 
+        double xError = targetPose.getX() - robotPose.getX();
+        double yError = targetPose.getY() - robotPose.getY();
+
+
+        // if the distance to the point is greater than the threshold, face in the points direction
+        // if the robot is closer then face the target angle
+        if (robotPose.distanceToPose(targetPose) > 20) {
+            double headingError1 = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - getAngleIMU());
+            double headingError2 = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - (getAngleIMU() + Math.PI));
+            if (robotPose.getX() < targetPose.getX()) {
+                headingError = headingError1;
+            } else {
+                headingError = headingError2;
+            }
+        } else {
+            headingError = AngleWrap(targetPose.getAngleRadians() - getAngleIMU());
+        }
+
+        double d_error_x = (xError - last_error_x) / (currentTime - timeOfLastupdate);
+        double d_error_y = (yError - last_error_y) / (currentTime - timeOfLastupdate);
+
+
+        xPower = (xError * kp) + (d_error_x * kd);
+        yPower = (yError * kp) + (d_error_y * kd);
+        yPower = -yPower;
+        turnPower = headingError * kpTurn;
+
+        FieldRelative(Range.clip(xPower,-max_speed,max_speed),Range.clip(yPower,-max_speed,max_speed),Range.clip(headingError,-max_speed,max_speed));
+
+        timeOfLastupdate = currentTime;
+        last_error_x = xError;
+        last_error_y = yError;
+    }
     /**
      * same good drive to point method but without aiming towards the point
      * and instead just always aiming toward the final angle
@@ -453,12 +510,12 @@ public class RobotClass {
      * @param positionOfAngle
      */
     public void turnToAngle(position positionOfAngle) {
-        double kpTurn = 2;
+        double kpTurn = 1;
 
         double targetAngle = positionOfAngle.getAngleRadians();
         headingError = AngleWrap(targetAngle - getAngleIMU());
 
-        FieldRelative(0,0,headingError * kpTurn);
+        robotRelative(0,0,headingError * kpTurn);
 
     }
 

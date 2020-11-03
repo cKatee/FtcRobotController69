@@ -23,8 +23,8 @@ public class printPosition extends LinearOpMode {
         robot.init(hardwareMap);
 
         waitForStartReady();
+        double loopTime = (double)System.currentTimeMillis() / 1000;
         double startTime = (double)System.currentTimeMillis() / 1000;
-
         while (opModeIsActive()) {
 
             roadrunnerOdometry.updatePoseEstimate();
@@ -42,10 +42,10 @@ public class printPosition extends LinearOpMode {
             telemetry.addData("y Power",robot.yPower);
             telemetry.addData("turn Power",robot.turnPower);
             telemetry.update();
-            double currentTime = ((double)System.currentTimeMillis() / 1000) - startTime;
-            System.out.println("" + pose.getX() + ", " +pose.getX() + ", " + currentTime + ", " + accel.xAccel + ", " + accel.yAccel);
+            double currentTime = ((double)System.currentTimeMillis() / 1000) - loopTime;
+            System.out.println("" + pose.getX() + ", " +pose.getY() + ", " + currentTime + ", " + accel.xAccel + ", " + accel.yAccel + ", " + (System.currentTimeMillis() - startTime));
 
-            startTime = (double)System.currentTimeMillis() / 1000;
+            loopTime = (double)System.currentTimeMillis() / 1000;
 
         }
 
