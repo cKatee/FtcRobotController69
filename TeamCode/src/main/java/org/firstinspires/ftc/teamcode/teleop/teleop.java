@@ -42,6 +42,7 @@ public class teleop extends LinearOpMode {
 
         robot = new RobotClass();
         robot.init(hardwareMap);
+        robot.setBreak();
 
         telemetry.addData("ready to start","Press play!");
         telemetry.update();
