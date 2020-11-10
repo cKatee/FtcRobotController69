@@ -181,8 +181,8 @@ public class RedLeft extends auto {
                     robot.goodDriveToPoint(wobble_goal_spot);
                     break;
                 case GO_TO_SECOND_WOBBLE_GOAL:
-                    robot.goodDriveToPointWithMaxSpeed(second_wobble_goal,0.7);
-                    if (robot.robotPose.distanceToPose(second_wobble_goal) < 1) {
+                    robot.goodDriveToPointWithMaxSpeed(second_wobble_goal,0.75);
+                    if (robot.robotPose.distanceToPose(second_wobble_goal) < 1.5) {
                         AUTO_STATE = auto_states.GRAB_SECOND_WOBBLE_GOAL;
                     }
                     break;

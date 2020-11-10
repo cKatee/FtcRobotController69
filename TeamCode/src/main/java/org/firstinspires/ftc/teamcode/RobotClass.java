@@ -1,5 +1,6 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.widget.TabHost;
 import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.hardware.DcMotor;
 import com.qualcomm.robotcore.hardware.DcMotorEx;
@@ -35,6 +36,8 @@ public class RobotClass {
     public Servo claw;
     public Servo shooterArm;
 
+    public final double TAU = Math.PI * 2;
+
     public static double xPower = 0;
     public static double yPower = 0;
     public static double turnPower = 0;
@@ -69,9 +72,15 @@ public class RobotClass {
     private final double liftKd = 0.4;
 
     public final double LIFT_IN = 13;
+    /*
     public final double LIFT_MAX = 359;
     public final double LIFT_MID = 555;
     public final double LIFT_DOWN = 900;
+
+     */
+    public final double LIFT_MAX = LIFT_IN;
+    public final double LIFT_MID = LIFT_IN;
+    public final double LIFT_DOWN = LIFT_IN;
 
     public final double CLAW_CLOSED = 0.8;
     public final double CLAW_OPEN = 0.2;
@@ -270,14 +279,19 @@ public class RobotClass {
         return Math.toRadians(rr_angle);
     }
 
+    public double normalizeAngleRR(double angle) {
+        double modifiedAngle = angle % TAU;
+        modifiedAngle = (modifiedAngle + TAU) % TAU;
+        return modifiedAngle;
+    }
+
     /**
      *
      * @return get correct imu angle
      */
     public double getAngleIMU() {
-        double angle1 = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS).secondAngle;
-        double angle2 = this.imu1.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS).secondAngle;
-        return (angle1 + angle2) / 2;
+        double angle = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS).secondAngle;
+        return angle;
     }
 
     /**
@@ -303,47 +317,7 @@ public class RobotClass {
         backLeftPower = input.magnitude() * Math.sin(theta - Math.PI / 4) + turnSpeed;
         backRightPower = input.magnitude() * Math.sin(theta + Math.PI / 4) - turnSpeed;
 
-        /*
-        if (input.magnitude() != 0) {
-            double maxMagnitude = Math.abs(frontLeftPower);
-            if (Math.abs(frontRightPower) > maxMagnitude) {
-                maxMagnitude = Math.abs(frontRightPower);
-            }
-            if (Math.abs(backLeftPower) > maxMagnitude) {
-                maxMagnitude = Math.abs(backLeftPower);
-            }
-            if (Math.abs(backRightPower) > maxMagnitude) {
-                maxMagnitude = Math.abs(backLeftPower);
-            }
-
-            frontRightPower = (frontRightPower / maxMagnitude) * input.magnitude();
-            frontLeftPower = (frontLeftPower / maxMagnitude) * input.magnitude();
-            backRightPower = (backRightPower / maxMagnitude) * input.magnitude();
-            backLeftPower = (backLeftPower / maxMagnitude) * input.magnitude();
-
-        } else {
-            double maxMagnitude = Math.abs(frontLeftPower);
-            if (Math.abs(frontRightPower) > maxMagnitude) {
-                maxMagnitude = Math.abs(frontRightPower);
-            }
-            if (Math.abs(backLeftPower) > maxMagnitude) {
-                maxMagnitude = Math.abs(backLeftPower);
-            }
-            if (Math.abs(backRightPower) > maxMagnitude) {
-                maxMagnitude = Math.abs(backLeftPower);
-            }
-
-            frontRightPower = (frontRightPower / maxMagnitude);
-            frontLeftPower = (frontLeftPower / maxMagnitude);
-            backRightPower = (backRightPower / maxMagnitude);
-            backLeftPower = (backLeftPower / maxMagnitude);
-        }
-
-         */
-
         drive.setMotorPowers(frontLeftPower,frontRightPower,backLeftPower,backRightPower);
-
-
     }
 
 
@@ -401,25 +375,15 @@ public class RobotClass {
         double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
         double kd = 0.12627 * 0.01;
         double kpTurn = 0.55;
-        double kdTurn = 0.01;
+        double kdTurn = 0;
 
         double xError = targetPose.getX() - robotPose.getX();
         double yError = targetPose.getY() - robotPose.getY();
 
-
-        // if the distance to the point is greater than the threshold, face in the points direction
-        // if the robot is closer then face the target angle
-        if (false) {//(robotPose.distanceToPose(targetPose) > 20) {
-            double headingError1 = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - getAngleIMU());
-            double headingError2 = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - (getAngleIMU() + Math.PI));
-            if (true) {//(robotPose.getX() < targetPose.getX()) {
-                headingError = headingError1;
-            } else {
-                headingError = headingError2;
-            }
-        } else {
-            headingError = AngleWrap(targetPose.getAngleRadians() - getAngleIMU());
-        }
+        double angle = getAngle();
+        double targetAngle = targetPose.getAngleRadians();
+        // We are epic so we assume that if the target angle is close to 180 and we are somewhat close to 180 we are at the target angle because we dont fw angle wrap
+        headingError = AngleWrap(-normalizeAngleRR(targetAngle - angle));
 
 
         double d_error_x = (xError - last_error_x) / (currentTime - timeOfLastupdate);
