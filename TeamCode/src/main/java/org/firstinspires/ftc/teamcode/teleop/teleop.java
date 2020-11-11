@@ -72,17 +72,24 @@ public class teleop extends LinearOpMode {
                     if (gamepad1.left_bumper) {
                         Pose2d estimate = roadrunnerOdometry.getPoseEstimate();
                         SHOOTING_POSITION.setPose2dRoadRunner(estimate);
-                        SHOOTING_POSITION.setAngleRad(robot.getAngleIMU());
                     } else {
                         robot.robotRelative(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x);
                     }
                     if (gamepad1.a) {
                         DRIVING_STATE = drivingStates.AUTO_AIM;
+                    } else if (gamepad1.right_bumper) {
+                        DRIVING_STATE = drivingStates.POWER_SHOT_AIM;
                     }
                     break;
                 case AUTO_AIM:
 
                     robot.goodDriveToPoint(SHOOTING_POSITION);
+                    if (sticksNotOutsideThreshold(0.1)) {
+                        DRIVING_STATE = drivingStates.HUMAN_CONTROL;
+                    }
+                    break;
+                case POWER_SHOT_AIM:
+                    robot.goodDriveToPoint(new position(SHOOTING_POSITION.getX()+5,SHOOTING_POSITION.getY()-20,SHOOTING_POSITION.getAngleRadians()));
                     if (sticksNotOutsideThreshold(0.1)) {
                         DRIVING_STATE = drivingStates.HUMAN_CONTROL;
                     }
@@ -186,8 +193,6 @@ public class teleop extends LinearOpMode {
 
             telemetry.addData("robot X",robot.robotPose.getX());
             telemetry.addData("robot Y",robot.robotPose.getY());
-            telemetry.addData("robot angle",robot.getAngleIMU());
-            telemetry.addData("robot degrees",Math.toDegrees(robot.getAngleIMU()));
             telemetry.addData("roadrunner angle",robot.robotPose.getAngleDegrees());
             telemetry.addData("loop update time: ",System.currentTimeMillis() - loopstart);
             telemetry.addData("shooter arm state: ", SHOOTER_ARM_STATE);
@@ -218,6 +223,7 @@ public class teleop extends LinearOpMode {
     public enum drivingStates {
         HUMAN_CONTROL,
         AUTO_AIM,
+        POWER_SHOT_AIM,
         STOPPED
     }
     public enum intakeStates {

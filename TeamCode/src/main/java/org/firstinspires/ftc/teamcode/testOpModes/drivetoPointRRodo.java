@@ -16,9 +16,9 @@ public class drivetoPointRRodo extends LinearOpMode {
     private RobotClass robot;
 
     private position first = new position(80,1,Math.toRadians(180));
-    private position second = new position(41,30,Math.toRadians(180));
-    private position third = new position(42,2,Math.toRadians(180));
-    private position fourth = new position(1,1,Math.toRadians(180));
+    private position second = new position(41,30,Math.toRadians(90));
+    private position third = new position(42,2,Math.toRadians(45));
+    private position fourth = new position(1,1,Math.toRadians(0));
     ArrayList<position> path = new ArrayList<>();
 
     @Override

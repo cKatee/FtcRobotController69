@@ -72,15 +72,17 @@ public class RobotClass {
     private final double liftKd = 0.4;
 
     public final double LIFT_IN = 13;
-    /*
+    
     public final double LIFT_MAX = 359;
     public final double LIFT_MID = 555;
     public final double LIFT_DOWN = 900;
 
-     */
+    /*
     public final double LIFT_MAX = LIFT_IN;
     public final double LIFT_MID = LIFT_IN;
     public final double LIFT_DOWN = LIFT_IN;
+
+     */
 
     public final double CLAW_CLOSED = 0.8;
     public final double CLAW_OPEN = 0.2;
@@ -95,7 +97,7 @@ public class RobotClass {
     public final double SHOOTER_ARM_IN = 0.53;
     public final double SHOOTER_ARM_OUT = 0.8;
 
-    public final double flywheelticksperminute = (3900 * 28) / 60;
+    public final double flywheelticksperminute = (4100 * 28) / 60;
     public final double powershotflywheelticksperminute = (5000 * 28) / 60;
 
     private double i_error = 0;
@@ -373,8 +375,8 @@ public class RobotClass {
     public void goodDriveToPoint(position targetPose) {
         double currentTime = (double) System.currentTimeMillis() / 1000;
         double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
-        double kd = 0.12627 * 0.01;
-        double kpTurn = 0.55;
+        double kd = 0.12627 * 0.05;
+        double kpTurn = 0.65;
         double kdTurn = 0;
 
         double xError = targetPose.getX() - robotPose.getX();
@@ -539,7 +541,7 @@ public class RobotClass {
     public PATH_FOLLOWER_STATES followPath(ArrayList<position> positions) {
 
         position CURRENT_TARGET = positions.get(PATH_INDEX);
-        double next_point_threshold = 2.5;
+        double next_point_threshold = 5;
         switch (path_follow_state) {
             case READY:
                 path_follow_state = PATH_FOLLOWER_STATES.MOVING_TO_POINT;
@@ -558,11 +560,10 @@ public class RobotClass {
                 }
                 break;
             case MOVING_TO_POINT:
+                goodDriveToPoint(CURRENT_TARGET);
                 if (robotPose.distanceToPose(CURRENT_TARGET) < next_point_threshold) {
                     path_follow_state = PATH_FOLLOWER_STATES.NEXT_POINT;
-                    break;
                 }
-                goodDriveToPoint(CURRENT_TARGET);
                 break;
             default:
                 break;
