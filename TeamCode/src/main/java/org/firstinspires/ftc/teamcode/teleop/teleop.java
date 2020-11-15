@@ -22,6 +22,7 @@ public class teleop extends LinearOpMode {
     private wobbleLiftstates WOBBLE_LIFT_STATE = wobbleLiftstates.IN;
     private boolean PREVIOUS_INTAKE_BUTTON_STATE = false;
     private boolean PREVIOUS_SHOOTER_BUTTON_STATE = false;
+    private boolean PREVIOUS_SHOOTER_SLOW_BUTTON_STATE = false;
     private boolean PREVIOUS_SHOOTER_ARM_BUTTON_STATE = false;
     private boolean PREVIOUS_WOBBLE_LIFT_ADVANCE_FORWARD_BUTTON_STATE = false;
     private boolean PREVIOUS_WOBBLE_LIFT_ADVANCE_BACKWARD_BUTTON_STATE = false;
@@ -57,6 +58,7 @@ public class teleop extends LinearOpMode {
             robot.robotPose.setPose2dRoadRunner(pose);
             boolean intakeButtonPress = gamepad1.x;
             boolean turnOnShooter = gamepad1.b;
+            boolean turnOnShooterSlow = gamepad1.dpad_right;
             boolean shootRing = gamepad1.y;
             boolean wobble_state_advance = gamepad1.dpad_up;
             boolean wobble_state_backward = gamepad1.dpad_down;
@@ -111,6 +113,8 @@ public class teleop extends LinearOpMode {
                 case OFF:
                     if (turnOnShooter && (PREVIOUS_SHOOTER_BUTTON_STATE != turnOnShooter)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.ON;
+                    } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
+                        SHOOTER_MOTOR_STATE = shooterMotorState.REDUCED_SPEED;
                     }
                     robot.shooter.setVelocity(0);
                     robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
@@ -118,8 +122,19 @@ public class teleop extends LinearOpMode {
                 case ON:
                     if (turnOnShooter && (PREVIOUS_SHOOTER_BUTTON_STATE != turnOnShooter)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.OFF;
+                    } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
+                        SHOOTER_MOTOR_STATE = shooterMotorState.REDUCED_SPEED;
                     }
                     robot.shooter.setVelocity(robot.flywheelticksperminute);
+                    break;
+                case REDUCED_SPEED:
+                    robot.shooter.setVelocity(robot.powerShotTicksPerMinute);
+                    if (turnOnShooter && (PREVIOUS_SHOOTER_BUTTON_STATE != turnOnShooter)) {
+                        SHOOTER_MOTOR_STATE = shooterMotorState.OFF;
+                    } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
+                        SHOOTER_MOTOR_STATE = shooterMotorState.OFF;
+                    }
+
                     break;
             }
             if (shootRing) {
@@ -175,6 +190,7 @@ public class teleop extends LinearOpMode {
             }
 
             PREVIOUS_SHOOTER_BUTTON_STATE = turnOnShooter;
+            PREVIOUS_SHOOTER_SLOW_BUTTON_STATE = turnOnShooterSlow;
             PREVIOUS_SHOOTER_ARM_BUTTON_STATE = gamepad1.y;
             PREVIOUS_INTAKE_BUTTON_STATE = gamepad1.a;
             PREVIOUS_WOBBLE_LIFT_ADVANCE_FORWARD_BUTTON_STATE = wobble_state_advance;
@@ -223,7 +239,8 @@ public class teleop extends LinearOpMode {
     }
     public enum shooterMotorState {
         ON,
-        OFF
+        REDUCED_SPEED,
+        OFF,
     }
     public enum shooterArmState {
         IN,

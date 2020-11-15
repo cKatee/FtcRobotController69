@@ -263,7 +263,7 @@ public class RedLeft extends auto {
                     }
                     break;
                 case DRIVE_TO_SHOOTING_POSITION_AGAIN:
-                    robot.shooter.setVelocity(robot.powershotflywheelticksperminute);
+                    robot.shooter.setVelocity(robot.secondSpeedflywheelticksperminute);
                     robot.goodDriveToPoint(power_shot);
                     if (robot.robotPose.distanceToPose(power_shot) < 2.5) {
                         AUTO_STATE = auto_states.SHOOT_RING_AGAIN;
@@ -272,7 +272,7 @@ public class RedLeft extends auto {
                 case SHOOT_RING_AGAIN:
                     robot.goodDriveToPoint(power_shot);
 
-                    if (((robot.shooter.getVelocity() / 28) * 60) > robot.powershotspeed - 100 && (System.currentTimeMillis() - time_of_extra_shot) > time_between_shots && robot.robotPose.distanceToPose(power_shot) < 2) {
+                    if (((robot.shooter.getVelocity() / 28) * 60) > robot.secondSpeed - 100 && (System.currentTimeMillis() - time_of_extra_shot) > time_between_shots && robot.robotPose.distanceToPose(power_shot) < 2) {
                         robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
                         sleep(shooter_actuation_time);
                         robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
