@@ -61,6 +61,13 @@ public class teleop extends LinearOpMode {
             boolean wobble_state_advance = gamepad1.dpad_up;
             boolean wobble_state_backward = gamepad1.dpad_down;
 
+
+            if (!sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF)) {
+                robot.intake.setPower(1);
+            } else {
+                robot.intake.setPower(0);
+            }
+
             switch (DRIVING_STATE) {
 
                 case HUMAN_CONTROL:
@@ -99,22 +106,6 @@ public class teleop extends LinearOpMode {
                     telemetry.addData("bad thing happened","restart robot controller");
                     break;
             }
-
-            switch (INTAKE_STATE) {
-                case OFF:
-                    if (intakeButtonPress && PREVIOUS_INTAKE_BUTTON_STATE != intakeButtonPress) {
-                        INTAKE_STATE = intakeStates.FORWARD;
-                    }
-                    robot.intake.setPower(0);
-                    break;
-                case FORWARD:
-                    if (intakeButtonPress && PREVIOUS_INTAKE_BUTTON_STATE != intakeButtonPress) {
-                        INTAKE_STATE = intakeStates.OFF;
-                    }
-                    robot.intake.setPower(1);
-                    break;
-            }
-
 
             switch (SHOOTER_MOTOR_STATE) {
                 case OFF:

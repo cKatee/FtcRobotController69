@@ -74,7 +74,7 @@ public class RobotClass {
     public final double LIFT_IN = 13;
     
     public final double LIFT_MAX = 359;
-    public final double LIFT_MID = 555;
+    public final double LIFT_MID = 450;
     public final double LIFT_DOWN = 900;
 
     /*
@@ -97,8 +97,9 @@ public class RobotClass {
     public final double SHOOTER_ARM_IN = 0.53;
     public final double SHOOTER_ARM_OUT = 0.8;
 
-    public final double flywheelticksperminute = (4100 * 28) / 60;
-    public final double powershotflywheelticksperminute = (5000 * 28) / 60;
+    public final double flywheelticksperminute = (4500 * 28) / 60;
+    public final double powershotspeed = 4500;
+    public final double powershotflywheelticksperminute = (powershotspeed * 28) / 60;
 
     private double i_error = 0;
     private double d_error = 0;
@@ -303,7 +304,7 @@ public class RobotClass {
      * @param turnSpeed
      */
     public void FieldRelative(double ySpeed, double xSpeed, double turnSpeed) {
-        double angle = Math.toDegrees(getAngleIMU());
+        double angle = Math.toDegrees(getAngleProper());
         xSpeed = clipMotor(xSpeed);
         ySpeed = clipMotor(ySpeed);
         turnSpeed = clipMotor(turnSpeed);
@@ -376,7 +377,7 @@ public class RobotClass {
         double currentTime = (double) System.currentTimeMillis() / 1000;
         double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
         double kd = 0.12627 * 0.05;
-        double kpTurn = 0.65;
+        double kpTurn = 0.75;
         double kdTurn = 0;
 
         double xError = targetPose.getX() - robotPose.getX();
