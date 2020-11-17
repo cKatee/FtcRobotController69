@@ -16,7 +16,7 @@ public class RedLeft extends auto {
     private auto_states AUTO_STATE = auto_states.START;
     private position start_position = new position(0,0,Math.toRadians(0));
     private position high_goal_so_we_miss_starting_stack = new position(60,6,Math.toRadians(180));
-    private position high_goal_general_position = new position(50,-8,Math.toRadians(-172));
+    private position high_goal_general_position = new position(54,-8,Math.toRadians(-172));
     private position high_goal_1 = new position(high_goal_general_position.getX(),high_goal_general_position.getY() ,high_goal_general_position.getAngleRadians());
     private position high_goal_2 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
     private position high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
@@ -74,17 +74,17 @@ public class RedLeft extends auto {
             stack = RingDetector.height;
             switch (stack) {
                 case ZERO:
-                    wobble_goal_spot = new position(63,6,Math.toRadians(-170));
+                    wobble_goal_spot = new position(62,10,Math.toRadians(180));
                     break;
                 case ONE:
-                    wobble_goal_spot = new position(86,-15,Math.toRadians(-170));
+                    wobble_goal_spot = new position(81,-18,Math.toRadians(-170));
                     break;
                 case FOUR:
-                    wobble_goal_spot = new position(108,6,Math.toRadians(-170));
+                    wobble_goal_spot = new position(104,6,Math.toRadians(180));
                     break;
                 default:
                     // default to zone B
-                    wobble_goal_spot = new position(86,-15,Math.toRadians(-170));
+                    wobble_goal_spot = new position(81,-18,Math.toRadians(-170));
                     break;
 
             }
@@ -229,7 +229,7 @@ public class RedLeft extends auto {
                     if ((timeForWobbleDelivery + timeOfWobbleDelivery1Start) < System.currentTimeMillis()) {
                         AUTO_STATE = auto_states.AVOID_PLACED_GOALS;
                         // ensure we go back 10x from where we are so we dont make the wobble goal die
-                        to_line_avoid_wobble_goals = new position(robot.robotPose.getX() - 15,robot.robotPose.getY(),robot.robotPose.getAngleRadians());
+                        to_line_avoid_wobble_goals = new position(robot.robotPose.getX() - 20,robot.robotPose.getY(),robot.robotPose.getAngleRadians());
                     }
                     robot.shooter.setVelocity(0);
                     arm_position = robot.LIFT_DOWN;

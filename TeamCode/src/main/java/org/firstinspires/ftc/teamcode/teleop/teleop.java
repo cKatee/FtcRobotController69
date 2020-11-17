@@ -56,7 +56,7 @@ public class teleop extends LinearOpMode {
             Pose2d pose = roadrunnerOdometry.getPoseEstimate();
 
             robot.robotPose.setPose2dRoadRunner(pose);
-            boolean intakeButtonPress = gamepad1.x;
+            boolean intakeReverseButtonPress = gamepad1.x;
             boolean turnOnShooter = gamepad1.b;
             boolean turnOnShooterSlow = gamepad1.dpad_right;
             boolean shootRing = gamepad1.y;
@@ -64,8 +64,13 @@ public class teleop extends LinearOpMode {
             boolean wobble_state_backward = gamepad1.dpad_down;
 
 
+
             if (!sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF)) {
-                robot.intake.setPower(1);
+                if (intakeReverseButtonPress) {
+                    robot.intake.setPower(-1);
+                } else {
+                    robot.intake.setPower(1);
+                }
             } else {
                 robot.intake.setPower(0);
             }

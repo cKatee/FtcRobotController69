@@ -95,12 +95,12 @@ public class RobotClass {
 
     public final double SHOOTER_ARM_IN = 0.53;
     public final double SHOOTER_ARM_OUT = 0.8;
-
-    public final double flywheelticksperminute = (4500 * 28) / 60;
+    public final double normflywheelspeed = 4500;
+    public final double flywheelticksperminute = (normflywheelspeed * 28) / 60;
     public final double secondSpeed = 4500;
     public final double secondSpeedflywheelticksperminute = (secondSpeed * 28) / 60;
 
-    public final double powerShotSpeed = 3800;
+    public final double powerShotSpeed = 3600;
     public final double powerShotTicksPerMinute = (powerShotSpeed * 28) / 60;
 
     private double i_error = 0;
