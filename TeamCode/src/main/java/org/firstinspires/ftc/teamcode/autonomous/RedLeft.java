@@ -16,13 +16,13 @@ public class RedLeft extends auto {
     private auto_states AUTO_STATE = auto_states.START;
     private position start_position = new position(0,0,Math.toRadians(0));
     private position high_goal_so_we_miss_starting_stack = new position(60,6,Math.toRadians(180));
-    private position high_goal_general_position = new position(54,-8,Math.toRadians(-172));
+    private position high_goal_general_position = new position(57,-8,Math.toRadians(-173));
     private position high_goal_1 = new position(high_goal_general_position.getX(),high_goal_general_position.getY() ,high_goal_general_position.getAngleRadians());
     private position high_goal_2 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
     private position high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
     private position wobble_goal_spot;
     private position to_second_wobble_avoid_stack = new position(50,-35,Math.toRadians(0));
-    private position second_wobble_goal = new position(26,-24,Math.toRadians(0));
+    private position second_wobble_goal = new position(26,-23,Math.toRadians(0));
     private position on_way_to_second_wobble_spot = new position(50,-30,Math.toRadians(0));
     private position to_line_avoid_wobble_goals;
     private position line = new position(70,-25,Math.toRadians(180));
@@ -74,13 +74,14 @@ public class RedLeft extends auto {
             stack = RingDetector.height;
             switch (stack) {
                 case ZERO:
-                    wobble_goal_spot = new position(62,10,Math.toRadians(180));
+                    wobble_goal_spot = new position(62,6,Math.toRadians(180));
                     break;
                 case ONE:
                     wobble_goal_spot = new position(81,-18,Math.toRadians(-170));
                     break;
                 case FOUR:
-                    wobble_goal_spot = new position(104,6,Math.toRadians(180));
+                    wobble_goal_spot = new position(104,6,Math.toRadians(-170));
+                    second_wobble_goal = new position(26,-26.9,Math.toRadians(0));
                     break;
                 default:
                     // default to zone B

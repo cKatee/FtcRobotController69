@@ -453,35 +453,28 @@ public class RobotClass {
     public void goodDriveToPointWithMaxSpeed(position targetPose,double max_speed) {
         double currentTime = (double) System.currentTimeMillis() / 1000;
         double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
-        double kd = 0.12627 * 0.01;
-        double kpTurn = 0.66;
+        double kd = 0.12627 * 0.05;
+        double kpTurn = 0.75;
+        double kdTurn = 0;
 
         double xError = targetPose.getX() - robotPose.getX();
         double yError = targetPose.getY() - robotPose.getY();
 
+        double angle = getAngle();
+        double targetAngle = targetPose.getAngleRadians();
+        // We are epic so we assume that if the target angle is close to 180 and we are somewhat close to 180 we are at the target angle because we dont fw angle wrap
+        headingError = AngleWrap(-normalizeAngleRR(targetAngle - angle));
 
-        // if the distance to the point is greater than the threshold, face in the points direction
-        // if the robot is closer then face the target angle
-        if (robotPose.distanceToPose(targetPose) > 20) {
-            double headingError1 = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - getAngleIMU());
-            double headingError2 = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - (getAngleIMU() + Math.PI));
-            if (robotPose.getX() < targetPose.getX()) {
-                headingError = headingError1;
-            } else {
-                headingError = headingError2;
-            }
-        } else {
-            headingError = AngleWrap(targetPose.getAngleRadians() - getAngleIMU());
-        }
 
         double d_error_x = (xError - last_error_x) / (currentTime - timeOfLastupdate);
         double d_error_y = (yError - last_error_y) / (currentTime - timeOfLastupdate);
-
+        double d_error_heading = (headingError - last_error_angle) / (currentTime - timeOfLastupdate);
 
         xPower = (xError * kp) + (d_error_x * kd);
         yPower = (yError * kp) + (d_error_y * kd);
         yPower = -yPower;
-        turnPower = headingError * kpTurn;
+        turnPower = (headingError * kpTurn) + (d_error_heading * kdTurn);
+
 
         FieldRelative(Range.clip(xPower,-max_speed,max_speed),Range.clip(yPower,-max_speed,max_speed),Range.clip(turnPower,-max_speed,max_speed));
 
