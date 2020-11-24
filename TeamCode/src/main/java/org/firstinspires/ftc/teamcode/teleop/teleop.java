@@ -69,23 +69,20 @@ public class teleop extends LinearOpMode {
             boolean intake_on = !sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF);
 
             if (intake_on) {
-                time_of_intake_off = System.currentTimeMillis();
                 if (intakeReverseButtonPress) {
                     robot.intake.setPower(-1);
                 } else {
                     robot.intake.setPower(1);
                 }
             } else {
-                if (System.currentTimeMillis() > (time_of_intake_off + INTAKE_OFF_DELAY)) {
-                    robot.intake.setPower(0);
+
+                if (intakeReverseButtonPress) {
+                    robot.intake.setPower(-1);
                 } else {
-                    if (intakeReverseButtonPress) {
-                        robot.intake.setPower(-1);
-                    } else {
-                        robot.intake.setPower(1);
-                    }
+                    robot.intake.setPower(1);
                 }
             }
+
 
             switch (DRIVING_STATE) {
 
