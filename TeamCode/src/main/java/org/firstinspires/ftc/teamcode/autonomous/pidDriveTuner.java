@@ -23,15 +23,12 @@ public class pidDriveTuner extends auto {
 
             robot.goodDriveToPoint(target);
 
-            System.out.println("" + position_estimate.getX() + ", " + position_estimate.getY() + ", " +
-                    + Math.toDegrees(robot.getAngleIMU()) + ", " + robot.headingError);
             telemetry.addData("x: ",position_estimate.getX());
             telemetry.addData("y: ",position_estimate.getY());
             telemetry.addData("heading error",Math.toDegrees(robot.headingError));
             telemetry.addData("target x: ",target.getX());
             telemetry.addData("target y: ",target.getY());
             telemetry.addData("target heading",target.getAngleDegrees());
-            telemetry.addData("current heading",Math.toDegrees(robot.getAngleIMU()));
             telemetry.update();
         }
     }

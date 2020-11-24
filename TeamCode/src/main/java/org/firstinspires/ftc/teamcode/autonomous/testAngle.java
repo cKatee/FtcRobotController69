@@ -21,8 +21,6 @@ public class testAngle extends auto {
             roadrunnerOdometry.updatePoseEstimate();
             Pose2d position_estimate = roadrunnerOdometry.getPoseEstimate();
             robot.robotPose.setPose2dRoadRunner(position_estimate);
-            telemetry.addData("angle error: ",Math.toDegrees(AngleWrap(robot.getAngleIMU() - Math.toRadians(172))));
-            telemetry.addData("angle: ",Math.toDegrees(robot.getAngleIMU()));
             telemetry.addData("rr angle",Math.toDegrees(robot.getAngleProper()));
             telemetry.update();
         }

@@ -16,7 +16,7 @@ public class RedLeft extends auto {
     private auto_states AUTO_STATE = auto_states.START;
     private position start_position = new position(0,0,Math.toRadians(0));
     private position high_goal_so_we_miss_starting_stack = new position(60,6,Math.toRadians(180));
-    private position high_goal_general_position = new position(57,-8,Math.toRadians(-173));
+    private position high_goal_general_position = new position(59,-8,Math.toRadians(-173));
     private position high_goal_1 = new position(high_goal_general_position.getX(),high_goal_general_position.getY() ,high_goal_general_position.getAngleRadians());
     private position high_goal_2 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
     private position high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
@@ -28,7 +28,7 @@ public class RedLeft extends auto {
     private position line = new position(70,-25,Math.toRadians(180));
     private position power_shot = new position(high_goal_general_position.getX(), high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
-    private position ring_stack = new position(30,-12,Math.toRadians(180));
+    private position ring_stack = new position(27,-9,Math.toRadians(180));
     private double arm_position = 0;
     private long timeOfWobbleDelivery1Start = 0;
 
@@ -77,7 +77,7 @@ public class RedLeft extends auto {
                     wobble_goal_spot = new position(62,6,Math.toRadians(180));
                     break;
                 case ONE:
-                    wobble_goal_spot = new position(81,-18,Math.toRadians(-170));
+                    wobble_goal_spot = new position(80.5,-18,Math.toRadians(-170));
                     break;
                 case FOUR:
                     wobble_goal_spot = new position(104,6,Math.toRadians(-170));
@@ -301,7 +301,6 @@ public class RedLeft extends auto {
             telemetry.addData("shooter velo", (robot.shooter.getVelocity() / 28) * 60);
             telemetry.addData("current x", robot.robotPose.getX());
             telemetry.addData("current y", robot.robotPose.getY());
-            telemetry.addData("angle", robot.getAngleIMU());
             telemetry.addData("heading error deg", Math.toDegrees(robot.headingError));
             telemetry.addData("current auto state",AUTO_STATE);
             telemetry.addData("stack is: ",stack);

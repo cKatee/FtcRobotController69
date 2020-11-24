@@ -26,6 +26,10 @@ public class teleop extends LinearOpMode {
     private boolean PREVIOUS_SHOOTER_ARM_BUTTON_STATE = false;
     private boolean PREVIOUS_WOBBLE_LIFT_ADVANCE_FORWARD_BUTTON_STATE = false;
     private boolean PREVIOUS_WOBBLE_LIFT_ADVANCE_BACKWARD_BUTTON_STATE = false;
+    private boolean PREVIOUS_INTAKE_STATE = false;
+    private double time_of_intake_off = 0;
+    // time in milliseconds we wait before turning off the intake so we still get the ring
+    private final double INTAKE_OFF_DELAY = 500;
     double first_pixel_average_measurement = 0;
     double second_pixel_average_measurement = 0;
     double third_pixel_average_measurement = 0;
@@ -62,17 +66,25 @@ public class teleop extends LinearOpMode {
             boolean shootRing = gamepad1.y;
             boolean wobble_state_advance = gamepad1.dpad_up;
             boolean wobble_state_backward = gamepad1.dpad_down;
+            boolean intake_on = !sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF);
 
-
-
-            if (!sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF)) {
+            if (intake_on) {
+                time_of_intake_off = System.currentTimeMillis();
                 if (intakeReverseButtonPress) {
                     robot.intake.setPower(-1);
                 } else {
                     robot.intake.setPower(1);
                 }
             } else {
-                robot.intake.setPower(0);
+                if (System.currentTimeMillis() > (time_of_intake_off + INTAKE_OFF_DELAY)) {
+                    robot.intake.setPower(0);
+                } else {
+                    if (intakeReverseButtonPress) {
+                        robot.intake.setPower(-1);
+                    } else {
+                        robot.intake.setPower(1);
+                    }
+                }
             }
 
             switch (DRIVING_STATE) {

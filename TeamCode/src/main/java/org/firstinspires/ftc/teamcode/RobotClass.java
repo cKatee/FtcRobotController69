@@ -73,7 +73,7 @@ public class RobotClass {
     public final double LIFT_IN = 13;
     
     public final double LIFT_MAX = 359;
-    public final double LIFT_MID = 450;
+    public final double LIFT_MID = 400;
     public final double LIFT_DOWN = 900;
 
     /*
@@ -93,7 +93,7 @@ public class RobotClass {
     public final double WRIST_FOR_GRAB = 0.2;
     public final double WRIST_FOR_SHOOTING = WRIST_IN;
 
-    public final double SHOOTER_ARM_IN = 0.53;
+    public final double SHOOTER_ARM_IN = 0.48;
     public final double SHOOTER_ARM_OUT = 0.8;
     public final double normflywheelspeed = 4500;
     public final double flywheelticksperminute = (normflywheelspeed * 28) / 60;
@@ -110,10 +110,6 @@ public class RobotClass {
     private double sample_time_millis = 0;
 
 
-    public BNO055IMU imu;
-    public BNO055IMU imu1;
-    BNO055IMU.Parameters IMU_Parameters;
-    float Yaw_Angle;
 
     public DriveTrain drive;
 
@@ -177,17 +173,6 @@ public class RobotClass {
 
         drive = new DriveTrain(FrontLeft,FrontRight,BackLeft,BackRight);
 
-        imu = hwmap.get(BNO055IMU.class, "imu");
-        imu1 = hwmap.get(BNO055IMU.class, "imu1");
-        IMU_Parameters = new BNO055IMU.Parameters();
-        IMU_Parameters.mode = BNO055IMU.SensorMode.IMU;
-        // Intialize the IMU using parameters object.
-        imu.initialize(IMU_Parameters);
-        imu1.initialize(IMU_Parameters);
-        // Report the initialization to the Driver Station.
-        while (!IMU_Calibrated()) {
-
-        }
 
 
         if (breakOn) {
@@ -290,14 +275,7 @@ public class RobotClass {
         return modifiedAngle;
     }
 
-    /**
-     *
-     * @return get correct imu angle
-     */
-    public double getAngleIMU() {
-        double angle = this.imu.getAngularOrientation(AxesReference.INTRINSIC, AxesOrder.XYZ, AngleUnit.RADIANS).secondAngle;
-        return angle;
-    }
+
 
     /**
      * real gamer field relative driving
@@ -425,7 +403,7 @@ public class RobotClass {
 
         // if the distance to the point is greater than the threshold, face in the points direction
         // if the robot is closer then face the target angle
-        headingError = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - getAngleIMU());
+        headingError = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - getAngleProper());
 
         double d_error_x = (xError - last_error_x) / (currentTime - timeOfLastupdate);
         double d_error_y = (yError - last_error_y) / (currentTime - timeOfLastupdate);
@@ -498,7 +476,7 @@ public class RobotClass {
 
 
 
-        headingError = AngleWrap(targetPose.getAngleRadians() - getAngleIMU());
+        headingError = AngleWrap(targetPose.getAngleRadians() - getAngleProper());
 
         double d_error_x = (xError - last_error_x) / (currentTime - timeOfLastupdate);
         double d_error_y = (yError - last_error_y) / (currentTime - timeOfLastupdate);
@@ -523,7 +501,7 @@ public class RobotClass {
         double kpTurn = 1;
 
         double targetAngle = positionOfAngle.getAngleRadians();
-        headingError = AngleWrap(targetAngle - getAngleIMU());
+        headingError = AngleWrap(targetAngle - getAngleProper());
 
         robotRelative(0,0,headingError * kpTurn);
 
@@ -570,14 +548,6 @@ public class RobotClass {
 
     }
 
-
-    /**
-     * checks if the IMU is currently calibrated
-     * @return the state of the IMU calibratiojn
-     */
-    private boolean IMU_Calibrated() {
-        return imu.isGyroCalibrated() && imu1.isGyroCalibrated();
-    }
 
     /**
      * squish motor power between 0 and 1

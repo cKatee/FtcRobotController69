@@ -28,7 +28,7 @@ public class printPosition extends LinearOpMode {
         while (opModeIsActive()) {
 
             roadrunnerOdometry.updatePoseEstimate();
-
+/*
             Pose2d pose = roadrunnerOdometry.getPoseEstimate();
             Acceleration accel = robot.imu.getLinearAcceleration();
             robot.robotPose.setPose2dRoadRunner(pose);
@@ -46,6 +46,8 @@ public class printPosition extends LinearOpMode {
             System.out.println("" + pose.getX() + ", " +pose.getY() + ", " + currentTime + ", " + accel.xAccel + ", " + accel.yAccel + ", " + (System.currentTimeMillis() - startTime));
 
             loopTime = (double)System.currentTimeMillis() / 1000;
+
+ */
 
         }
 

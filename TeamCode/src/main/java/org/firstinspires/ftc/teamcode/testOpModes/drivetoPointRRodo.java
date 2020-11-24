@@ -46,7 +46,6 @@ public class drivetoPointRRodo extends LinearOpMode {
             telemetry.addData("x",pose.getX());
             telemetry.addData("y",pose.getY());
             telemetry.addData("odom angle",Math.toDegrees(pose.getHeading()) - 180);
-            telemetry.addData("IMU",Math.toDegrees(robot.getAngleIMU()));
             telemetry.addData("heading error",robot.headingError);
             telemetry.addData("x Power",robot.xPower);
             telemetry.addData("y Power",robot.yPower);
