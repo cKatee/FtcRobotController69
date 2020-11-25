@@ -4,7 +4,7 @@ package org.firstinspires.ftc.teamcode.geometry;
 
 public class position {
 
-    private double x, y;
+    private double x, y, z;
     public org.firstinspires.ftc.teamcode.geometry.angle angle;
     /**
      * constructor for position
@@ -15,6 +15,12 @@ public class position {
     public position(double x, double y, double angle) {
         this.x = x;
         this.y = y;
+        this.angle = new angle(angle);
+    }
+    public position(double x, double y, double z, double angle) {
+        this.x = x;
+        this.y = y;
+        this.z = z;
         this.angle = new angle(angle);
     }
 
@@ -61,12 +67,20 @@ public class position {
         return y;
     }
 
+    public double getZ() {
+        return z;
+    }
+
     public void setX(double x) {
         this.x = x;
     }
 
     public void setY(double y) {
         this.y = y;
+    }
+
+    public void setZ(double z) {
+        this.z = z;
     }
 
     /**
