@@ -52,7 +52,7 @@ public class teleop extends LinearOpMode {
         telemetry.addData("ready to start","Press play!");
         telemetry.update();
         waitForStart();
-
+        double dumb_servo = 1;
         while (opModeIsActive()) {
             long loopstart = System.currentTimeMillis();
             roadrunnerOdometry.updatePoseEstimate();
@@ -67,6 +67,10 @@ public class teleop extends LinearOpMode {
             boolean wobble_state_advance = gamepad1.dpad_up;
             boolean wobble_state_backward = gamepad1.dpad_down;
             boolean intake_on = !sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF);
+            robot.ring_bumper.setPosition(dumb_servo);
+            if (gamepad1.dpad_left) {
+                dumb_servo -= 0.01;
+            }
 
             if (intake_on) {
                 if (intakeReverseButtonPress) {
@@ -220,6 +224,7 @@ public class teleop extends LinearOpMode {
             telemetry.addData("shootRing ",shootRing);
             telemetry.addData("wobble arm",robot.lift.getCurrentPosition());
             telemetry.addData("shooter vleo",(robot.shooter.getVelocity() / 28) * 60);
+            telemetry.addData("dumb servo: ",dumb_servo);
             telemetry.update();
         }
 

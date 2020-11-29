@@ -9,7 +9,7 @@ import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 @Autonomous
 public class pidDriveTuner extends auto {
 
-    private position target = new position(50,20,Math.toRadians(180));
+    private position target = new position(60,0,Math.toRadians(180));
 
     public void runOpMode() {
         SampleMecanumDrive roadrunnerOdometry = new SampleMecanumDrive(hardwareMap);

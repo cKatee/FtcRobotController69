@@ -34,6 +34,7 @@ public class RobotClass {
     public Servo wrist;
     public Servo claw;
     public Servo shooterArm;
+    public Servo ring_bumper;
 
     public final double TAU = Math.PI * 2;
 
@@ -109,6 +110,8 @@ public class RobotClass {
     private double last_time = 0;
     private double sample_time_millis = 0;
 
+    public final double RING_BUMPER_IN = 1;
+    public final double RING_BUMPER_OUT = 0;
 
 
     public DriveTrain drive;
@@ -143,7 +146,7 @@ public class RobotClass {
         shooterArm.setPosition(SHOOTER_ARM_IN);
         wrist = hwmap.get(Servo.class, "wrist");
         claw = hwmap.get(Servo.class, "claw");
-
+        ring_bumper = hwmap.get(Servo.class, "ring_bumper");
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -170,6 +173,8 @@ public class RobotClass {
         shooter.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
 
         lift.setZeroPowerBehavior(DcMotor.ZeroPowerBehavior.BRAKE);
+
+        ring_bumper.setPosition(RING_BUMPER_IN);
 
         drive = new DriveTrain(FrontLeft,FrontRight,BackLeft,BackRight);
 

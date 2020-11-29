@@ -16,7 +16,7 @@ public class RedLeft extends auto {
     private auto_states AUTO_STATE = auto_states.START;
     private position start_position = new position(0,0,Math.toRadians(0));
     private position high_goal_so_we_miss_starting_stack = new position(60,6,Math.toRadians(180));
-    private position high_goal_general_position = new position(59,-7,Math.toRadians(-174));
+    private position high_goal_general_position = new position(59,-4,Math.toRadians(-174));
     private position high_goal_1 = new position(high_goal_general_position.getX(),high_goal_general_position.getY() ,high_goal_general_position.getAngleRadians());
     private position high_goal_2 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
     private position high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
@@ -267,13 +267,14 @@ public class RedLeft extends auto {
                     }
                     break;
                 case DRIVE_TO_SHOOTING_POSITION_AGAIN:
-                    robot.shooter.setVelocity(robot.secondSpeedflywheelticksperminute);
                     robot.goodDriveToPoint(power_shot);
                     if (robot.robotPose.distanceToPose(power_shot) < 2.5) {
                         AUTO_STATE = auto_states.SHOOT_RING_AGAIN;
                         time_of_extra_shot = System.currentTimeMillis();
                     }
                 case SHOOT_RING_AGAIN:
+                    robot.shooter.setVelocity(robot.secondSpeedflywheelticksperminute);
+
                     robot.goodDriveToPoint(power_shot);
 
                     if (((robot.shooter.getVelocity() / 28) * 60) > robot.secondSpeed - 100 && (System.currentTimeMillis() - time_of_extra_shot) > time_between_shots && robot.robotPose.distanceToPose(power_shot) < 2) {
