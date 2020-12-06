@@ -1,16 +1,15 @@
 package org.firstinspires.ftc.teamcode;
 
+import android.util.Log;
 import com.qualcomm.hardware.bosch.BNO055IMU;
-import com.qualcomm.robotcore.hardware.DcMotor;
-import com.qualcomm.robotcore.hardware.DcMotorEx;
-import com.qualcomm.robotcore.hardware.DcMotorSimple;
-import com.qualcomm.robotcore.hardware.HardwareMap;
-import com.qualcomm.robotcore.hardware.Servo;
+import com.qualcomm.robotcore.hardware.*;
+import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Range;
 
 import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
 import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
+import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.geometry.Translation2d;
 import org.firstinspires.ftc.teamcode.geometry.Vector2d;
@@ -35,7 +34,8 @@ public class RobotClass {
     public Servo claw;
     public Servo shooterArm;
     public Servo ring_bumper;
-
+    public DistanceSensor left_distance;
+    public DistanceSensor right_distance;
     public final double TAU = Math.PI * 2;
 
     public static double xPower = 0;
@@ -75,7 +75,10 @@ public class RobotClass {
     
     public final double LIFT_MAX = 359;
     public final double LIFT_MID = 400;
-    public final double LIFT_DOWN = 900;
+    public final double LIFT_DOWN = 850;
+
+
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(300, 0, 0, 12.5);
 
     /*
     public final double LIFT_MAX = LIFT_IN;
@@ -90,7 +93,7 @@ public class RobotClass {
 
     public final double WRIST_FOR_AUTO_INIT = 0.5;
     public final double WRIST_IN = 1;
-    public final double WRIST_FOR_PLACING_OUTSIDE = 0;
+    public final double WRIST_FOR_PLACING_OUTSIDE = 0.35;
     public final double WRIST_FOR_GRAB = 0.2;
     public final double WRIST_FOR_SHOOTING = WRIST_IN;
 
@@ -110,9 +113,10 @@ public class RobotClass {
     private double last_time = 0;
     private double sample_time_millis = 0;
 
-    public final double RING_BUMPER_IN = 1;
-    public final double RING_BUMPER_OUT = 0;
-
+    public final double RING_BUMPER_IN = 0.1;
+    public final double RING_BUMPER_OUT = 0.60;
+    public double xError = 0;
+    public double yError = 0;
 
     public DriveTrain drive;
 
@@ -120,6 +124,7 @@ public class RobotClass {
 
     public static position robotPose = new position(0,0,0);
 
+    private VoltageSensor batteryVoltageSensor;
 
 
 
@@ -147,6 +152,11 @@ public class RobotClass {
         wrist = hwmap.get(Servo.class, "wrist");
         claw = hwmap.get(Servo.class, "claw");
         ring_bumper = hwmap.get(Servo.class, "ring_bumper");
+        right_distance = hwmap.get(DistanceSensor.class, "right_distance");
+        left_distance = hwmap.get(DistanceSensor.class, "left_distance");
+
+
+
         FrontLeft.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         FrontRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
         BackRight.setMode(DcMotor.RunMode.STOP_AND_RESET_ENCODER);
@@ -177,7 +187,9 @@ public class RobotClass {
         ring_bumper.setPosition(RING_BUMPER_IN);
 
         drive = new DriveTrain(FrontLeft,FrontRight,BackLeft,BackRight);
+        batteryVoltageSensor = hwmap.voltageSensor.iterator().next();
 
+        setPIDFCoefficients(shooter, MOTOR_VELO_PID);
 
 
         if (breakOn) {
@@ -308,6 +320,32 @@ public class RobotClass {
         drive.setMotorPowers(frontLeftPower,frontRightPower,backLeftPower,backRightPower);
     }
 
+    /**
+     *      * real gamer field relative driving with robot relative strafing added
+     * @param ySpeed field oriented robot speed
+     * @param xSpeed field oriented robot speed
+     * @param turnSpeed turn speed
+     * @param RobotOrientedStrafe robot oriented strafing
+     */
+    public void HybridRelative(double ySpeed, double xSpeed, double turnSpeed, double RobotOrientedStrafe) {
+        double angle = Math.toDegrees(getAngleProper());
+        xSpeed = clipMotor(xSpeed);
+        ySpeed = clipMotor(ySpeed);
+        turnSpeed = clipMotor(turnSpeed);
+
+        Vector2d input = new Vector2d(xSpeed,ySpeed);
+
+        input = input.rotateBy(angle);
+
+        double theta = input.angle();
+
+        frontLeftPower = (input.magnitude() * Math.sin(theta + Math.PI / 4) + turnSpeed) + RobotOrientedStrafe;
+        frontRightPower = input.magnitude() * Math.sin(theta - Math.PI / 4) - turnSpeed - RobotOrientedStrafe;
+        backLeftPower = input.magnitude() * Math.sin(theta - Math.PI / 4) + turnSpeed - RobotOrientedStrafe;
+        backRightPower = input.magnitude() * Math.sin(theta + Math.PI / 4) - turnSpeed + RobotOrientedStrafe;
+
+        drive.setMotorPowers(frontLeftPower,frontRightPower,backLeftPower,backRightPower);
+    }
 
     /**
      * boring mecanum robot relative driving
@@ -362,11 +400,11 @@ public class RobotClass {
         double currentTime = (double) System.currentTimeMillis() / 1000;
         double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
         double kd = 0.12627 * 0.05;
-        double kpTurn = 0.75;
+        double kpTurn = 2.5;
         double kdTurn = 0;
 
-        double xError = targetPose.getX() - robotPose.getX();
-        double yError = targetPose.getY() - robotPose.getY();
+        xError = targetPose.getX() - robotPose.getX();
+        yError = targetPose.getY() - robotPose.getY();
 
         double angle = getAngle();
         double targetAngle = targetPose.getAngleRadians();
@@ -392,6 +430,54 @@ public class RobotClass {
     }
 
     /**
+     * uses rev 2m distance sensors to keep robot aligned with an object while driving towards a point
+     * @param targetPose the current target the robot is driving towards
+     */
+    public void goodDriveToPointDistanceControl(position targetPose, double max_speed) {
+        double currentTime = (double) System.currentTimeMillis() / 1000;
+        double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
+        double kd = 0.12627 * 0.05;
+        double kpTurn = 0.75;
+        double kdTurn = 0;
+
+        xError = targetPose.getX() - robotPose.getX();
+        yError = targetPose.getY() - robotPose.getY();
+
+        double angle = getAngle();
+        double targetAngle = targetPose.getAngleRadians();
+        // We are epic so we assume that if the target angle is close to 180 and we are somewhat close to 180 we are at the target angle because we dont fw angle wrap
+        headingError = AngleWrap(-normalizeAngleRR(targetAngle - angle));
+
+
+        double d_error_x = (xError - last_error_x) / (currentTime - timeOfLastupdate);
+        double d_error_y = (yError - last_error_y) / (currentTime - timeOfLastupdate);
+        double d_error_heading = (headingError - last_error_angle) / (currentTime - timeOfLastupdate);
+
+        xPower = (xError * kp) + (d_error_x * kd);
+        yPower = (yError * kp) + (d_error_y * kd);
+        yPower = -yPower;
+        turnPower = (headingError * kpTurn) + (d_error_heading * kdTurn);
+        double power = 0.4;
+        double strafePower;
+
+        if (left_distance.getDistance(DistanceUnit.MM) < 400) {
+            strafePower = -power;
+        } else if (right_distance.getDistance(DistanceUnit.MM) < 45){
+            strafePower = power;
+        } else {
+            strafePower = 0;
+        }
+
+        HybridRelative(Range.clip(xPower,-max_speed,max_speed),Range.clip(yPower,-max_speed,max_speed),Range.clip(turnPower,-max_speed,max_speed),strafePower);
+
+        timeOfLastupdate = currentTime;
+        last_error_x = xError;
+        last_error_y = yError;
+        last_error_angle = headingError;
+    }
+
+
+    /**
      * drives to position only
      * @param targetPose
      */
@@ -402,8 +488,8 @@ public class RobotClass {
         double kpTurn = 0.55;
         double kdTurn = 0.01;
 
-        double xError = targetPose.getX() - robotPose.getX();
-        double yError = targetPose.getY() - robotPose.getY();
+        xError = targetPose.getX() - robotPose.getX();
+        yError = targetPose.getY() - robotPose.getY();
 
 
         // if the distance to the point is greater than the threshold, face in the points direction
@@ -440,8 +526,8 @@ public class RobotClass {
         double kpTurn = 0.75;
         double kdTurn = 0;
 
-        double xError = targetPose.getX() - robotPose.getX();
-        double yError = targetPose.getY() - robotPose.getY();
+        xError = targetPose.getX() - robotPose.getX();
+        yError = targetPose.getY() - robotPose.getY();
 
         double angle = getAngle();
         double targetAngle = targetPose.getAngleRadians();
@@ -476,8 +562,8 @@ public class RobotClass {
         double kd = 0.12627 * 0.01;
         double kpTurn = 0.6;
 
-        double xError = targetPose.getX() - robotPose.getX();
-        double yError = targetPose.getY() - robotPose.getY();
+        xError = targetPose.getX() - robotPose.getX();
+        yError = targetPose.getY() - robotPose.getY();
 
 
 
@@ -517,10 +603,10 @@ public class RobotClass {
      * @param positions arraylist of position
      * @return the current state of the path following from the PATH_FOLLOWER_STATES enum
      */
-    public PATH_FOLLOWER_STATES followPath(ArrayList<position> positions) {
+    public boolean followPath(ArrayList<position> positions) {
 
         position CURRENT_TARGET = positions.get(PATH_INDEX);
-        double next_point_threshold = 5;
+        double next_point_threshold = 3;
         switch (path_follow_state) {
             case READY:
                 path_follow_state = PATH_FOLLOWER_STATES.MOVING_TO_POINT;
@@ -547,9 +633,11 @@ public class RobotClass {
             default:
                 break;
         }
-
-        //return robotPose.distanceToPose(CURRENT_TARGET);
-        return path_follow_state;
+        if (path_follow_state.equals(PATH_FOLLOWER_STATES.STOPPED)) {
+            path_follow_state = PATH_FOLLOWER_STATES.READY;
+            return true;
+        }
+        return false;
 
     }
 
@@ -571,5 +659,16 @@ public class RobotClass {
         READY
     }
 
+    private void setPIDFCoefficients(DcMotorEx motor, PIDFCoefficients coefficients) {
+
+        if (true) {
+            Log.i("config", "setting custom gains");
+            motor.setPIDFCoefficients(DcMotor.RunMode.RUN_USING_ENCODER, new PIDFCoefficients(
+                    coefficients.p, coefficients.i, coefficients.d, coefficients.f * 12 / batteryVoltageSensor.getVoltage()
+            ));
+        } else {
+            Log.i("config", "setting default gains");
+        }
+    }
 
 }

@@ -26,6 +26,10 @@ public class teleop extends LinearOpMode {
     private boolean PREVIOUS_SHOOTER_ARM_BUTTON_STATE = false;
     private boolean PREVIOUS_WOBBLE_LIFT_ADVANCE_FORWARD_BUTTON_STATE = false;
     private boolean PREVIOUS_WOBBLE_LIFT_ADVANCE_BACKWARD_BUTTON_STATE = false;
+    private boolean shooter_is_actuated = false;
+    private boolean last_shooter_actuated = false;
+    private double time_of_shooter_state_change = 0;
+
     private boolean PREVIOUS_INTAKE_STATE = false;
     private double time_of_intake_off = 0;
     // time in milliseconds we wait before turning off the intake so we still get the ring
@@ -48,7 +52,6 @@ public class teleop extends LinearOpMode {
         robot = new RobotClass();
         robot.init(hardwareMap);
         robot.setBreak();
-
         telemetry.addData("ready to start","Press play!");
         telemetry.update();
         waitForStart();
@@ -67,10 +70,7 @@ public class teleop extends LinearOpMode {
             boolean wobble_state_advance = gamepad1.dpad_up;
             boolean wobble_state_backward = gamepad1.dpad_down;
             boolean intake_on = !sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF);
-            robot.ring_bumper.setPosition(dumb_servo);
-            if (gamepad1.dpad_left) {
-                dumb_servo -= 0.01;
-            }
+
 
             if (intake_on) {
                 if (intakeReverseButtonPress) {
@@ -79,12 +79,8 @@ public class teleop extends LinearOpMode {
                     robot.intake.setPower(1);
                 }
             } else {
+                 robot.intake.setPower(0);
 
-                if (intakeReverseButtonPress) {
-                    robot.intake.setPower(-1);
-                } else {
-                    robot.intake.setPower(1);
-                }
             }
 
 
@@ -156,8 +152,32 @@ public class teleop extends LinearOpMode {
                     break;
             }
             if (shootRing) {
-                robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
+
+                if (SHOOTER_MOTOR_STATE.equals(shooterMotorState.REDUCED_SPEED)) {
+                    if (shootRing) {
+                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
+                    } else {
+                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+                    }
+                }
+                else {
+                    if (System.currentTimeMillis() - time_of_shooter_state_change >= 230) {
+                        time_of_shooter_state_change = System.currentTimeMillis();
+                        shooter_is_actuated = !shooter_is_actuated;
+                    }
+
+                    if (shooter_is_actuated) {
+                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
+                    } else {
+                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+
+                    }
+                }
+
+
+
             } else {
+                shooter_is_actuated = false;
                 robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
             }
 
@@ -224,7 +244,6 @@ public class teleop extends LinearOpMode {
             telemetry.addData("shootRing ",shootRing);
             telemetry.addData("wobble arm",robot.lift.getCurrentPosition());
             telemetry.addData("shooter vleo",(robot.shooter.getVelocity() / 28) * 60);
-            telemetry.addData("dumb servo: ",dumb_servo);
             telemetry.update();
         }
 

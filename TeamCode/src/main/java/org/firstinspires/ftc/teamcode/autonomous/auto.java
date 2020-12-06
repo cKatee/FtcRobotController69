@@ -40,6 +40,9 @@ public class auto extends LinearOpMode {
         PICK_UP_SECOND_RING,
         DRIVE_TO_SHOOTING_POSITION_AGAIN,
         SHOOT_RING_AGAIN,
+        PICK_UP_FOURTH_RING,
+        DRIVE_TO_SHOOTING_POSITION_FOUR,
+        SHOOT_RING_FOUR,
         PARK_ON_LINE
     }
 }
