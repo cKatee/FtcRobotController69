@@ -398,8 +398,8 @@ public class RobotClass {
      */
     public void goodDriveToPoint(position targetPose) {
         double currentTime = (double) System.currentTimeMillis() / 1000;
-        double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
-        double kd = 0.12627 * 0.05;
+        double kp = 30 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
+        double kd = 0.52 * 0.05;
         double kpTurn = 2.5;
         double kdTurn = 0;
 

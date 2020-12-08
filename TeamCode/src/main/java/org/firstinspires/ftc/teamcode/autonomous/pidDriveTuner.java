@@ -17,14 +17,13 @@ public class pidDriveTuner extends auto {
         SampleMecanumDrive roadrunnerOdometry = new SampleMecanumDrive(hardwareMap);
 
         initialize();
-        robot.ring_bumper.setPosition(robot.RING_BUMPER_OUT);
         waitForStart();
         while (opModeIsActive()) {
             roadrunnerOdometry.updatePoseEstimate();
             Pose2d position_estimate = roadrunnerOdometry.getPoseEstimate();
             robot.robotPose.setPose2dRoadRunner(position_estimate);
 
-            robot.goodDriveToPointDistanceControl(target,0.5);
+            robot.goodDriveToPoint(target);
 
             telemetry.addData("x: ",position_estimate.getX());
             telemetry.addData("y: ",position_estimate.getY());
