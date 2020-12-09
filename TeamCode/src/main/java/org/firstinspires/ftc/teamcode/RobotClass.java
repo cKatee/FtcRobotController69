@@ -457,7 +457,7 @@ public class RobotClass {
         yPower = (yError * kp) + (d_error_y * kd);
         yPower = -yPower;
         turnPower = (headingError * kpTurn) + (d_error_heading * kdTurn);
-        double power = 0.4;
+        double power = 0.3;
         double strafePower;
 
         if (left_distance.getDistance(DistanceUnit.MM) < 400) {
