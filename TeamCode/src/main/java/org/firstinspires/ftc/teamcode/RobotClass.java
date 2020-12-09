@@ -99,12 +99,12 @@ public class RobotClass {
 
     public final double SHOOTER_ARM_IN = 0.48;
     public final double SHOOTER_ARM_OUT = 0.8;
-    public final double normflywheelspeed = 4500;
+    public final double normflywheelspeed = 5500;
     public final double flywheelticksperminute = (normflywheelspeed * 28) / 60;
-    public final double secondSpeed = 4500;
+    public final double secondSpeed = 5500;
     public final double secondSpeedflywheelticksperminute = (secondSpeed * 28) / 60;
 
-    public final double powerShotSpeed = 3600;
+    public final double powerShotSpeed = 3700;
     public final double powerShotTicksPerMinute = (powerShotSpeed * 28) / 60;
 
     private double i_error = 0;
@@ -481,7 +481,7 @@ public class RobotClass {
      * drives to position only
      * @param targetPose
      */
-    public void driveToPointONLY(position targetPose) {
+    public void driveToPointONLY(position targetPose, boolean reversed) {
         double currentTime = (double) System.currentTimeMillis() / 1000;
         double kp = 30 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
         double kd = 0.52 * 0.05;
@@ -494,7 +494,12 @@ public class RobotClass {
 
         // if the distance to the point is greater than the threshold, face in the points direction
         // if the robot is closer then face the target angle
-        headingError = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - getAngleProper());
+        if (!reversed) {
+            headingError = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) - getAngleProper());
+        } else {
+            headingError = AngleWrap(Math.atan2(targetPose.getY() - robotPose.getY(),targetPose.getX() - robotPose.getX()) + getAngleProper());
+
+        }
 
         double d_error_x = (xError - last_error_x) / (currentTime - timeOfLastupdate);
         double d_error_y = (yError - last_error_y) / (currentTime - timeOfLastupdate);

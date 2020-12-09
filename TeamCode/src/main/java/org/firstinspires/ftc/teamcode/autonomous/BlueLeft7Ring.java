@@ -22,7 +22,7 @@ public class BlueLeft7Ring extends auto {
     private auto_states AUTO_STATE = auto_states.START;
     private position start_position = new position(0,0,Math.toRadians(0));
     private position high_goal_so_we_miss_starting_stack = new position(60,6,Math.toRadians(180));
-    private position high_goal_general_position = new position(62,-6,Math.toRadians(-174));
+    private position high_goal_general_position = new position(58,-3,Math.toRadians(-174));
 
     private position powershot_general_position = new position(65,-37,Math.toRadians(-174));
 
@@ -35,8 +35,9 @@ public class BlueLeft7Ring extends auto {
     private position high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
     private position wobble_goal_spot;
-    private position to_second_wobble_avoid_stack = new position(45,-26,Math.toRadians(0));
-    private position second_wobble_goal = new position(27,-26,Math.toRadians(0));
+    private position second_wobble_goal = new position(27,-31,Math.toRadians(0));
+
+    private position to_second_wobble_avoid_stack = new position(45,second_wobble_goal.getY(),Math.toRadians(0));
     private position on_way_to_second_wobble_spot = new position(50,-30,Math.toRadians(0));
     private position to_line_avoid_wobble_goals;
     private position line = new position(70,-25,Math.toRadians(180));
@@ -44,6 +45,8 @@ public class BlueLeft7Ring extends auto {
 
     private position ring_stack = new position(34,-11.75,Math.toRadians(177));
     private position straight_behind_ring = new position(20,ring_stack.getY() - 2.5,Math.toRadians(177));
+    private position infront_of_ring_stack = new position(high_goal_general_position.getX(),ring_stack.getY(),ring_stack.getAngleRadians());
+
     ArrayList<position> ring_path = new ArrayList<>();
     private double selectedShootingRPM = robot.normflywheelspeed;
     private double selectedShootingTPM = robot.flywheelticksperminute;
@@ -69,7 +72,7 @@ public class BlueLeft7Ring extends auto {
     private long time_for_shot_adjust = 400;
     // time in milliseconds for the servo to push the disk
     private long shooter_actuation_time = 350;
-    private long timeForWobbleDelivery = 750;//3 * 1000;
+    private long timeForWobbleDelivery = 850;//3 * 1000;
     private long timeOfWobblePlace = 0;
     private long time_between_shots = 200;
     private RingDetector.Height stack;
@@ -142,8 +145,8 @@ public class BlueLeft7Ring extends auto {
                     high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
 
-                    wobble_goal_spot = new position(104,3,Math.toRadians(-170));
-                    second_wobble_goal = new position(27,-20.9,Math.toRadians(0));
+                    wobble_goal_spot = new position(104,9,Math.toRadians(-160));
+                    second_wobble_goal = new position(27,-23.9,Math.toRadians(0));
                     break;
                 default:
 
@@ -232,16 +235,22 @@ public class BlueLeft7Ring extends auto {
                             if (stack.equals(FOUR)) {
                                 robot.ring_bumper.setPosition(robot.RING_BUMPER_OUT);
                             }
-                            AUTO_STATE = auto_states.PICK_UP_SECOND_RING;
+                            AUTO_STATE = auto_states.GO_INFRONT_OF_RING;
                         }
                     }
 
+                    break;
+                case GO_INFRONT_OF_RING:
+                    robot.goodDriveToPoint(infront_of_ring_stack);
+                    if (robot.robotPose.distanceToPose(infront_of_ring_stack) < 3) {
+                        AUTO_STATE = auto_states.PICK_UP_SECOND_RING;
+                    }
                     break;
                 case PICK_UP_SECOND_RING:
                     robot.shooter.setVelocity(0);
 
                     robot.intake.setPower(1);
-                    robot.goodDriveToPointDistanceControl(ring_stack,0.55);
+                    robot.goodDriveToPointDistanceControl(ring_stack,0.75);
                     if (robot.robotPose.distanceToPose(ring_stack) < 3) {
                         AUTO_STATE = auto_states.DRIVE_TO_SHOOTING_POSITION_AGAIN;
                     }

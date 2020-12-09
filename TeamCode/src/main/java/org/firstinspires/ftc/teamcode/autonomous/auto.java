@@ -37,6 +37,7 @@ public class auto extends LinearOpMode {
         PLACE_WOBBLE_GOAL_2,
         to_second_wobble_spot,
         AVOID_PLACED_GOALS,
+        GO_INFRONT_OF_RING,
         PICK_UP_SECOND_RING,
         DRIVE_TO_SHOOTING_POSITION_AGAIN,
         JANK_JERK_THING_POG,

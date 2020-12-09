@@ -18,7 +18,8 @@ public class RedLeft extends auto {
     private auto_states AUTO_STATE = auto_states.START;
     private position start_position = new position(0,0,Math.toRadians(0));
     private position high_goal_so_we_miss_starting_stack = new position(60,6,Math.toRadians(180));
-    private position high_goal_general_position = new position(62,-6,Math.toRadians(-174));
+    private position high_goal_general_position = new position(60,-3,Math.toRadians(-174));
+    private position beyond_high_goal_spot = new position(high_goal_general_position.getX() + 6, high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
     private position powershot_general_position = new position(65,-37,Math.toRadians(-174));
     private position high_goal_1 = new position(high_goal_general_position.getX(),high_goal_general_position.getY() ,high_goal_general_position.getAngleRadians());
@@ -127,7 +128,7 @@ public class RedLeft extends auto {
                     high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
 
-                    wobble_goal_spot = new position(104,3,Math.toRadians(-170));
+                    wobble_goal_spot = new position(104,6,Math.toRadians(-170));
                     second_wobble_goal = new position(27,-20.9,Math.toRadians(0));
                     break;
                 default:
@@ -312,19 +313,26 @@ public class RedLeft extends auto {
                         arm_position = robot.LIFT_MAX;
                     }
                     robot.intake.setPower(1);
-                    robot.goodDriveToPointDistanceControl(ring_stack,0.65);
+                    robot.goodDriveToPointDistanceControl(ring_stack,0.75);
                     if (robot.robotPose.distanceToPose(ring_stack) < 3) {
                         AUTO_STATE = auto_states.DRIVE_TO_SHOOTING_POSITION_AGAIN;
                     }
                     break;
                 case DRIVE_TO_SHOOTING_POSITION_AGAIN:
-                    robot.goodDriveToPoint(shoot_starting_stack_position);
-                    if (robot.robotPose.distanceToPose(shoot_starting_stack_position) < 2.5) {
+                    robot.goodDriveToPoint(beyond_high_goal_spot);
+                    if (robot.robotPose.distanceToPose(beyond_high_goal_spot) < 2.5) {
                         AUTO_STATE = auto_states.SHOOT_RING_AGAIN;
+                    }
+                    break;
+                case JANK_JERK_THING_POG:
+                    robot.goodDriveToPoint(high_goal_general_position);
+                    if (robot.robotPose.distanceToPose(high_goal_general_position) < 2.5) {
+                        AUTO_STATE = auto_states.SHOOT_RING_FOUR;
                         time_of_extra_shot = System.currentTimeMillis();
                     }
+                    break;
                 case SHOOT_RING_AGAIN:
-                    if (robot.robotPose.distanceToPose(shoot_starting_stack_position) < 3) {
+                    if (robot.robotPose.distanceToPose(shoot_starting_stack_position) < 2.2) {
                         robot.shooter.setVelocity(robot.secondSpeedflywheelticksperminute);
                     }
 
