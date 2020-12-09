@@ -127,7 +127,7 @@ public class RedLeft extends auto {
                     high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
 
-                    wobble_goal_spot = new position(104,9,Math.toRadians(-170));
+                    wobble_goal_spot = new position(104,3,Math.toRadians(-170));
                     second_wobble_goal = new position(27,-20.9,Math.toRadians(0));
                     break;
                 default:
