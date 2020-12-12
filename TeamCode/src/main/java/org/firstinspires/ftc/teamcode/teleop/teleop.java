@@ -161,7 +161,7 @@ public class teleop extends LinearOpMode {
                     }
                 }
                 else {
-                    if (System.currentTimeMillis() - time_of_shooter_state_change >= 230) {
+                    if (System.currentTimeMillis() - time_of_shooter_state_change >= 340) {
                         time_of_shooter_state_change = System.currentTimeMillis();
                         shooter_is_actuated = !shooter_is_actuated;
                     }

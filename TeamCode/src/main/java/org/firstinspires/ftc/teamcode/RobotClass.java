@@ -78,7 +78,7 @@ public class RobotClass {
     public final double LIFT_DOWN = 850;
 
 
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(300, 0, 0, 12.5);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(400, 1, 0, 12.5);
 
     /*
     public final double LIFT_MAX = LIFT_IN;
@@ -99,12 +99,12 @@ public class RobotClass {
 
     public final double SHOOTER_ARM_IN = 0.48;
     public final double SHOOTER_ARM_OUT = 0.8;
-    public final double normflywheelspeed = 5500;
+    public final double normflywheelspeed = 5400;
     public final double flywheelticksperminute = (normflywheelspeed * 28) / 60;
-    public final double secondSpeed = 5500;
+    public final double secondSpeed = 5400;
     public final double secondSpeedflywheelticksperminute = (secondSpeed * 28) / 60;
 
-    public final double powerShotSpeed = 3700;
+    public final double powerShotSpeed = 3480;
     public final double powerShotTicksPerMinute = (powerShotSpeed * 28) / 60;
 
     private double i_error = 0;
@@ -398,9 +398,9 @@ public class RobotClass {
      */
     public void goodDriveToPoint(position targetPose) {
         double currentTime = (double) System.currentTimeMillis() / 1000;
-        double kp = 30 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
-        double kd = 0.52 * 0.05;
-        double kpTurn = 2.5;
+        double kp = 14.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
+        double kd = 0.12627 * 0.06;
+        double kpTurn = 2.2;
         double kdTurn = 0;
 
         xError = targetPose.getX() - robotPose.getX();

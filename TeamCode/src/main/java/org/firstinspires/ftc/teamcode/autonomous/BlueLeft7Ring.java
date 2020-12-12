@@ -145,7 +145,7 @@ public class BlueLeft7Ring extends auto {
                     high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
 
-                    wobble_goal_spot = new position(104,9,Math.toRadians(-160));
+                    wobble_goal_spot = new position(104,3,Math.toRadians(-160));
                     second_wobble_goal = new position(27,-23.9,Math.toRadians(0));
                     break;
                 default:
@@ -262,6 +262,8 @@ public class BlueLeft7Ring extends auto {
                     }
                     break;
                 case JANK_JERK_THING_POG:
+                    robot.shooter.setVelocity(selectedShootingTPM);
+
                     robot.goodDriveToPoint(high_goal_general_position);
                     if (robot.robotPose.distanceToPose(high_goal_general_position) < 2.5) {
                         AUTO_STATE = auto_states.SHOOT_RING_FOUR;
@@ -306,6 +308,8 @@ public class BlueLeft7Ring extends auto {
                     }
                     break;
                 case DRIVE_TO_SHOOTING_POSITION_FOUR:
+                    robot.shooter.setVelocity(selectedShootingTPM);
+
                     robot.goodDriveToPoint(shoot_starting_stack_position);
                     if (robot.robotPose.distanceToPose(shoot_starting_stack_position) < 2.5) {
                         AUTO_STATE = auto_states.SHOOT_RING_FOUR;

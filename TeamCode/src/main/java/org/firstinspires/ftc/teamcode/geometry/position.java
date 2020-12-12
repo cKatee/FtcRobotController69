@@ -114,6 +114,19 @@ public class position {
         this.angle.setRadians(pose.getHeading());
     }
 
+    /**
+     * calculates the midpoint of this point and the other point
+     * @param other the other point
+     * @return the mid point
+     */
+    public position midpoint(position other) {
+        double x = (this.x + other.x) / 2;
+        double y = (this.y + other.y) / 2;
+        double angleRad = this.getAngleRadians();
+        return new position(x, y , angleRad);
+
+    }
+
     public void setAngleRad(double rad) {
         this.angle.setRadians(rad);
     }
