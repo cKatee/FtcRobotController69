@@ -161,7 +161,7 @@ public class teleop extends LinearOpMode {
                     }
                 }
                 else {
-                    if (System.currentTimeMillis() - time_of_shooter_state_change >= 340) {
+                    if (System.currentTimeMillis() - time_of_shooter_state_change >= 140) {
                         time_of_shooter_state_change = System.currentTimeMillis();
                         shooter_is_actuated = !shooter_is_actuated;
                     }
@@ -245,6 +245,7 @@ public class teleop extends LinearOpMode {
             telemetry.addData("wobble arm",robot.lift.getCurrentPosition());
             telemetry.addData("shooter vleo",(robot.shooter.getVelocity() / 28) * 60);
             telemetry.update();
+
         }
 
     }
