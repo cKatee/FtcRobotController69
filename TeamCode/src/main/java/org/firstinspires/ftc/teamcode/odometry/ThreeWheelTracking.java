@@ -1,23 +1,21 @@
 package org.firstinspires.ftc.teamcode.odometry;
 
 
+
+import org.firstinspires.ftc.teamcode.RobotClass;
 import org.firstinspires.ftc.teamcode.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.geometry.Rotation2d;
+import org.firstinspires.ftc.teamcode.geometry.position;
 
-import static java.lang.Math.atan2;
-import static java.lang.Math.cos;
-import static java.lang.Math.pow;
-import static java.lang.Math.sin;
-import static java.lang.Math.sqrt;
 
 public class ThreeWheelTracking {
+    public position robotPosition;
     public static double TICKS_PER_REV = 8192;
     public static double OMNI_WHEEL_RADIUS = 1.37795 / 2;
     public static double ODOMETRY_TRACK_WIDTH = 13.189;
     public static double ODOMETRY_MIDDLE_OFFSET = 5.512;
-    double current_left_encoder = 0;
-    double current_right_encoder = 0;
-    double current_aux_encoder = 0;
+    public static final double EPSILON = 1e-6;
+
     double prevLeft = 0;
     double prevRight = 0;
     double prevHorizontal = 0;
@@ -25,50 +23,50 @@ public class ThreeWheelTracking {
     double x = 0;
     double y = 0;
     double radians = 0;
-
+    private RobotClass robot;
 
     double angleRadianBias = 0.0;
     /**
      * cunstructor whoop whoop
      * @param start
      */
-    public ThreeWheelTracking(Pose2d start) {
-        x = start.getTranslation().getX();
-        y = start.getTranslation().getY();
-        radians = start.getRotation().getRadians();
-
+    public ThreeWheelTracking(position start, RobotClass robot) {
+        robotPosition = start;
+        this.robot = robot;
+        robot.robotPose = robotPosition;
     }
 
 
     /**
      * updates the fucking pose
-     * @param leftEncoder
-     * @param rightEncoder
-     * @param auxEncoder
      */
-    public void updatePose(double leftEncoder, double rightEncoder, double auxEncoder, double currentHeading) {
-//Get current and delta values
-        double curL = -ticksToInches(leftEncoder), curR = -ticksToInches(rightEncoder), curH = -ticksToInches(auxEncoder);
-        double dL = curL - prevLeft, dR = curR - prevRight, dH = curH-prevHorizontal;
+    public void updatePose() {
+        double leftEncoder = -robot.drive.FrontLeft.getCurrentPosition();
+        double rightEncoder = robot.drive.FrontRight.getCurrentPosition();
+        double auxEncoder = -robot.drive.BackLeft.getCurrentPosition();
 
-        //Get and normalize delta in our heading
-        double deltaHeading = normalAngle(currentHeading-prevHeading);
 
-        //Get the true distance we travelled using trig
-        double robotX = (dL + dR)/2, robotY = dH-ODOMETRY_MIDDLE_OFFSET*deltaHeading;
-        double distanceMoved = sqrt(pow(robotX, 2) + pow(robotY,2));
-        double angleMoved = atan2(robotY, robotX) - currentHeading;
-        double xTravelled = distanceMoved*cos(angleMoved);
-        double yTravelled = distanceMoved*sin(angleMoved);
+        double deltaL = ticksToInches(leftEncoder - prevLeft);
+        double deltaR = ticksToInches(rightEncoder - prevRight);
+        double deltaH = ticksToInches(auxEncoder - prevHorizontal);
 
-        //Apply the calculations to X and Y
-        x+= xTravelled;
-        y-= yTravelled;
+        double deltaAngle = (deltaL - deltaR) / ODOMETRY_TRACK_WIDTH;
+        double deltaX = (deltaL + deltaR) / 2;
+        double deltaY = deltaH - ODOMETRY_MIDDLE_OFFSET * deltaAngle;
 
-        prevLeft = curL;
-        prevRight = curR;
-        prevHorizontal = curH;
-        prevHeading = currentHeading;
+
+        double estimateArcAngle = robot.robotPose.getAngleRadians() + deltaAngle / 2;
+
+        double fieldOrientedX = deltaX * Math.cos(estimateArcAngle)  - deltaY * Math.sin(estimateArcAngle);
+        double fieldOrientedY = deltaX * Math.sin(estimateArcAngle) + deltaY * Math.cos(estimateArcAngle);
+
+        position deltaPose = new position(fieldOrientedX, fieldOrientedY, deltaAngle);
+
+        robot.robotPose = robot.robotPose.plus(deltaPose);
+
+        prevLeft = leftEncoder;
+        prevRight = rightEncoder;
+        prevHeading = auxEncoder;
 
     }
 
@@ -95,5 +93,14 @@ public class ThreeWheelTracking {
         double inches = OMNI_WHEEL_RADIUS * 2 * Math.PI * ticks / TICKS_PER_REV;
         return inches;
     }
+
+    public boolean approxEquals(double v1, double v2) {
+        if (Double.isInfinite(v1)) {
+            return v1 == v2;
+        } else {
+            return Math.abs(v1 - v2) < EPSILON;
+        }
+    }
+
 
 }

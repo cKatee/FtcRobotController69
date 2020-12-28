@@ -136,5 +136,9 @@ public class position {
     }
 
 
+    public position plus(position other) {
+        return new position(other.x + this.x,other.y + this.y,other.getAngleRadians() + this.angle.getRadians());
+    }
+
 
 }
