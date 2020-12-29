@@ -4,24 +4,24 @@ package org.firstinspires.ftc.teamcode.geometry;
 
 public class position {
 
-    private double x, y, z;
+    protected double x, y, z;
     public org.firstinspires.ftc.teamcode.geometry.angle angle;
     /**
      * constructor for position
      * @param x x position
      * @param y y position
-     * @param angle in radians
+     * @param radians in radians
      */
-    public position(double x, double y, double angle) {
+    public position(double x, double y, double radians) {
         this.x = x;
         this.y = y;
-        this.angle = new angle(angle);
+        this.angle = new angle(radians);
     }
-    public position(double x, double y, double z, double angle) {
+    public position(double x, double y, double z, double radians) {
         this.x = x;
         this.y = y;
         this.z = z;
-        this.angle = new angle(angle);
+        this.angle = new angle(radians);
     }
 
     /**
