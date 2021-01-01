@@ -7,7 +7,7 @@ import static org.firstinspires.ftc.teamcode.GlutenCode.utils.AngleWrap;
 import static org.firstinspires.ftc.teamcode.RobotClass.*;
 
 public class PoseStablizationController {
-    protected double kp = 16.693 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
+    protected double kp = 17.1 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
     double kd = 0.12627 * 0.06;
     double kpTurn = 2.8;
     double kdTurn = 0;

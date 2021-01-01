@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.subsystems;
 
 import com.qualcomm.robotcore.hardware.DcMotor;
+import com.qualcomm.robotcore.util.Range;
 
 
 public class DriveTrain {
@@ -45,11 +46,35 @@ public class DriveTrain {
     }
 
 
+    /**
+     * lynx optimized motor power setter
+     * @param fl
+     * @param fr
+     * @param bl
+     * @param br
+     */
     public void setMotorPowers(double fl, double fr, double bl, double br) {
-        FrontLeft.setPower(fl);
-        FrontRight.setPower(fr);
-        BackLeft.setPower(bl);
-        BackRight.setPower(br);
+
+        fl = Range.clip(fl,-1,1);
+        fr = Range.clip(fr, -1, 1);
+        bl = Range.clip(bl, -1,1);
+        br = Range.clip(br, -1, 1);
+
+
+        if (FrontLeft.getPower() != fl) {
+            FrontLeft.setPower(fl);
+        }
+        if (FrontRight.getPower() != fr) {
+            FrontRight.setPower(fr);
+        }
+        if (BackLeft.getPower() != bl) {
+            BackLeft.setPower(bl);
+        }
+
+        if (BackRight.getPower() != br) {
+            BackRight.setPower(br);
+        }
+
     }
 
     public void STOP() {

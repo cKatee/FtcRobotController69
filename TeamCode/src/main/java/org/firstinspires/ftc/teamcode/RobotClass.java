@@ -243,10 +243,14 @@ public class RobotClass {
         if ((error >= 0 && last_error <= 0) || (error <= 0 && last_error >= 0)) {
             i_error = 0;
         }
-        double output = (p_error * liftKp) + (i_error * liftKi) + (d_error * liftKd);
+        double output = Range.clip((p_error * liftKp) + (i_error * liftKi) + (d_error * liftKd),-1,1);
         last_error = error;
 
-        lift.setPower(Range.clip(output,-0.5,0.5));
+
+
+        if (lift.getPower() != output) {
+            lift.setPower(output);
+        }
 
 
         last_time = current_time;
@@ -316,6 +320,7 @@ public class RobotClass {
         frontRightPower = input.magnitude() * Math.sin(theta - Math.PI / 4) - turnSpeed;
         backLeftPower = input.magnitude() * Math.sin(theta - Math.PI / 4) + turnSpeed;
         backRightPower = input.magnitude() * Math.sin(theta + Math.PI / 4) - turnSpeed;
+
 
         drive.setMotorPowers(frontLeftPower,frontRightPower,backLeftPower,backRightPower);
     }

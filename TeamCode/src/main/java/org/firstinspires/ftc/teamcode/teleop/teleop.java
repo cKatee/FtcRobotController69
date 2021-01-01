@@ -4,6 +4,7 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.RobotClass;
 import org.firstinspires.ftc.teamcode.geometry.position;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
@@ -42,6 +43,13 @@ public class teleop extends LinearOpMode {
     double pixel_average = 0;
     private double setpoint = 0;
     private position SHOOTING_POSITION = new position(24,0,Math.toRadians(172));
+    private ElapsedTime timer = new ElapsedTime();
+
+    private double intake_speed = 0;
+    private double last_intake_speed = 100000;
+
+    private double shooter_velocity = 0;
+    private double last_shooter_velocity = 100000;
 
     @Override
     public void runOpMode() throws InterruptedException {
@@ -57,7 +65,7 @@ public class teleop extends LinearOpMode {
         waitForStart();
         double dumb_servo = 1;
         while (opModeIsActive()) {
-            long loopstart = System.currentTimeMillis();
+            timer.reset();
             roadrunnerOdometry.updatePoseEstimate();
 
             Pose2d pose = roadrunnerOdometry.getPoseEstimate();
@@ -74,14 +82,18 @@ public class teleop extends LinearOpMode {
 
             if (intake_on) {
                 if (intakeReverseButtonPress) {
-                    robot.intake.setPower(-1);
+                    intake_speed = -1;
                 } else {
-                    robot.intake.setPower(1);
+                    intake_speed = 1;
                 }
             } else {
-                 robot.intake.setPower(0);
-
+                 intake_speed = 0;
             }
+
+            if (intake_speed != last_intake_speed) {
+                robot.intake.setPower(intake_speed);
+            }
+            last_intake_speed = intake_speed;
 
 
             switch (DRIVING_STATE) {
@@ -120,6 +132,7 @@ public class teleop extends LinearOpMode {
                 case STOPPED:
                     robot.drive.STOP();
                     telemetry.addData("bad thing happened","restart robot controller");
+                    telemetry.update();
                     break;
             }
 
@@ -130,8 +143,13 @@ public class teleop extends LinearOpMode {
                     } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.REDUCED_SPEED;
                     }
-                    robot.shooter.setVelocity(0);
-                    robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+                    shooter_velocity = 0;
+
+                    if (shooter_velocity != last_shooter_velocity) {
+                        robot.shooter.setVelocity(shooter_velocity);
+                    }
+
+                    last_shooter_velocity = shooter_velocity;
                     break;
                 case ON:
                     if (turnOnShooter && (PREVIOUS_SHOOTER_BUTTON_STATE != turnOnShooter)) {
@@ -139,16 +157,31 @@ public class teleop extends LinearOpMode {
                     } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.REDUCED_SPEED;
                     }
+                    robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
                     robot.shooter.setVelocity(robot.flywheelticksperminute);
+
+                    shooter_velocity = robot.flywheelticksperminute;
+
+                    if (shooter_velocity != last_shooter_velocity) {
+                        robot.shooter.setVelocity(shooter_velocity);
+                    }
+                    last_shooter_velocity = shooter_velocity;
+
                     break;
                 case REDUCED_SPEED:
-                    robot.shooter.setVelocity(robot.powerShotTicksPerMinute);
+                    shooter_velocity = robot.powerShotTicksPerMinute;
+                    robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
                     if (turnOnShooter && (PREVIOUS_SHOOTER_BUTTON_STATE != turnOnShooter)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.OFF;
                     } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.OFF;
                     }
 
+                    if (shooter_velocity != last_shooter_velocity) {
+                        robot.shooter.setVelocity(shooter_velocity);
+                    }
+
+                    last_shooter_velocity = shooter_velocity;
                     break;
             }
             if (shootRing) {
@@ -236,15 +269,21 @@ public class teleop extends LinearOpMode {
 
             robot.driveArmToSetpoint(setpoint);
 
+
+            /*
+
             telemetry.addData("robot X",robot.robotPose.getX());
             telemetry.addData("robot Y",robot.robotPose.getY());
             telemetry.addData("roadrunner angle",robot.robotPose.getAngleDegrees());
-            telemetry.addData("loop update time: ",System.currentTimeMillis() - loopstart);
             telemetry.addData("shooter arm state: ", SHOOTER_ARM_STATE);
             telemetry.addData("shootRing ",shootRing);
             telemetry.addData("wobble arm",robot.lift.getCurrentPosition());
             telemetry.addData("shooter vleo",(robot.shooter.getVelocity() / 28) * 60);
             telemetry.update();
+
+            */
+
+            System.out.println("Elapsed time:" + timer.milliseconds());
 
         }
 

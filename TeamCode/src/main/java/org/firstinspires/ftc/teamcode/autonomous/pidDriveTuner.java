@@ -3,6 +3,7 @@ package org.firstinspires.ftc.teamcode.autonomous;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.controllers.MotionProfiledPoseStablization;
 import org.firstinspires.ftc.teamcode.controllers.PoseStablizationController;
@@ -26,6 +27,7 @@ public class pidDriveTuner extends auto {
 
 
 
+    private ElapsedTime timer = new ElapsedTime();
     private MotionProfiledPoseStablization poseStablizationController = new MotionProfiledPoseStablization(robot);
     private pathFollower pathFollower = new pathFollower(poseStablizationController);
 
@@ -45,6 +47,7 @@ public class pidDriveTuner extends auto {
         initialize();
         waitForStart();
         while (opModeIsActive()) {
+            timer.reset();
             roadrunnerOdometry.updatePoseEstimate();
             Pose2d position_estimate = roadrunnerOdometry.getPoseEstimate();
             robot.robotPose.setPose2dRoadRunner(position_estimate);
@@ -67,7 +70,7 @@ public class pidDriveTuner extends auto {
             telemetry.addData("x: ",position_estimate.getX());
             telemetry.addData("y: ",position_estimate.getY());
             telemetry.addData("heading error",Math.toDegrees(robot.headingError));
-
+            System.out.println("Loop time is: " + timer.milliseconds());
 
             telemetry.update();
         }

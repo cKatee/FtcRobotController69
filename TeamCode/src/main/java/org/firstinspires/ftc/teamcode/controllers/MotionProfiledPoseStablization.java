@@ -20,7 +20,7 @@ public class MotionProfiledPoseStablization extends PoseStablizationController {
     private double loop_time_est = 23;
 
     // time in milliseconds we take to accelerate
-    private double acceleration_time = 4000;
+    private double acceleration_time = 700;
 
     // time of starting the pose motion profiled move
 

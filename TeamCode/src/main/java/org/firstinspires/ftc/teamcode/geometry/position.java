@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.geometry;
 
 
+import com.acmerobotics.roadrunner.util.Angle;
 
 public class position {
 
@@ -31,6 +32,12 @@ public class position {
         this.x = translation.getX();
         this.y = translation.getY();
         this.angle = new angle(rotation.getRadians());
+    }
+
+    public position(com.acmerobotics.roadrunner.geometry.Pose2d poseEstimate) {
+        this.x = poseEstimate.getX();
+        this.y = poseEstimate.getY();
+        this.angle = new angle(poseEstimate.getHeading());
     }
 
     /**
