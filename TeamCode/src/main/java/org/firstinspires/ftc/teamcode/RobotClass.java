@@ -1,14 +1,10 @@
 package org.firstinspires.ftc.teamcode;
 
 import android.util.Log;
-import com.qualcomm.hardware.bosch.BNO055IMU;
+
 import com.qualcomm.robotcore.hardware.*;
-import com.qualcomm.robotcore.robot.Robot;
 import com.qualcomm.robotcore.util.Range;
 
-import org.firstinspires.ftc.robotcore.external.navigation.AngleUnit;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesOrder;
-import org.firstinspires.ftc.robotcore.external.navigation.AxesReference;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
 import org.firstinspires.ftc.teamcode.geometry.Pose2d;
 import org.firstinspires.ftc.teamcode.geometry.Translation2d;
@@ -19,6 +15,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveTrain;
 import java.util.ArrayList;
 
 import static org.firstinspires.ftc.teamcode.GlutenCode.utils.AngleWrap;
+
 
 
 public class RobotClass {
@@ -87,22 +84,27 @@ public class RobotClass {
 
      */
 
+    private double LAST_CLAW_POSITION = 1000000;
     public final double CLAW_CLOSED = 0.8;
     public final double CLAW_OPEN = 0.2;
 
-
+    private double LAST_WRIST_POSITION = 100000;
     public final double WRIST_FOR_AUTO_INIT = 0.5;
     public final double WRIST_IN = 1;
     public final double WRIST_FOR_PLACING_OUTSIDE = 0.35;
     public final double WRIST_FOR_GRAB = 0.2;
     public final double WRIST_FOR_SHOOTING = WRIST_IN;
 
+
+    private double LAST_SHOOTER_ARM_POSITION = 1000000;
     public final double SHOOTER_ARM_IN = 0.48;
-    public final double SHOOTER_ARM_OUT = 0.8;
+    public final double SHOOTER_ARM_OUT = 0.7;
     public final double normflywheelspeed = 4000;
     public final double flywheelticksperminute = (normflywheelspeed * 28) / 60;
     public final double secondSpeed = 4000;
     public final double secondSpeedflywheelticksperminute = (secondSpeed * 28) / 60;
+
+    public double last_wg_speed = 0;
 
     public final double powerShotSpeed = 3480;
     public final double powerShotTicksPerMinute = (powerShotSpeed * 28) / 60;
@@ -140,6 +142,9 @@ public class RobotClass {
      * @param hwmap
      */
     public void init(HardwareMap hwmap) {
+
+
+
         FrontLeft = hwmap.get(DcMotor.class, "FrontLeft");
         FrontRight = hwmap.get(DcMotor.class, "FrontRight");
         BackLeft = hwmap.get(DcMotor.class, "BackLeft");
@@ -190,6 +195,7 @@ public class RobotClass {
         batteryVoltageSensor = hwmap.voltageSensor.iterator().next();
 
         setPIDFCoefficients(shooter, MOTOR_VELO_PID);
+
 
 
         if (breakOn) {
@@ -243,14 +249,14 @@ public class RobotClass {
         if ((error >= 0 && last_error <= 0) || (error <= 0 && last_error >= 0)) {
             i_error = 0;
         }
-        double output = Range.clip((p_error * liftKp) + (i_error * liftKi) + (d_error * liftKd),-1,1);
+        double output = Range.clip((p_error * liftKp) + (i_error * liftKi) + (d_error * liftKd),-0.5,0.5);
         last_error = error;
 
-
-
-        if (lift.getPower() != output) {
+        if (last_wg_speed != output) {
             lift.setPower(output);
         }
+
+        last_wg_speed = output;
 
 
         last_time = current_time;
@@ -680,5 +686,42 @@ public class RobotClass {
             Log.i("config", "setting default gains");
         }
     }
+
+    /**
+     * sets the wrist position, lynx optimized
+     * @param position servo position
+     */
+    public void setWristLynxOptimized(double position) {
+        if (position != LAST_WRIST_POSITION) {
+            wrist.setPosition(position);
+
+        }
+
+        LAST_WRIST_POSITION = position;
+    }
+
+    /**
+     * sets the claw position, lynx optimized
+     * @param position servo position
+     */
+    public void setClawLynxOptimized(double position) {
+        if (position != LAST_CLAW_POSITION) {
+            claw.setPosition(position);
+        }
+        LAST_CLAW_POSITION = position;
+    }
+
+    /**
+     * sets the claw position, lynx optimized
+     * @param position servo position
+     */
+    public void setShooterArmLynxOptimized(double position) {
+        if (position != LAST_SHOOTER_ARM_POSITION) {
+            shooterArm.setPosition(position);
+        }
+        LAST_SHOOTER_ARM_POSITION = position;
+    }
+
+
 
 }

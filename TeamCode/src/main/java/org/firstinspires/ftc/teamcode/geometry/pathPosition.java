@@ -3,7 +3,7 @@ package org.firstinspires.ftc.teamcode.geometry;
 public class pathPosition extends position {
 
     // steady state error tolerance
-    protected double steady_state_tolerance = 3;
+    protected double steady_state_tolerance = 1.5;
 
     public pathPosition(double x, double y, double angle) {
         super(x, y, angle);

@@ -132,8 +132,8 @@ public class FtcRobotControllerActivity extends Activity
   public static final String TAG = "RCActivity";
   public String getTag() { return TAG; }
 
-  private static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
-  private static final int NUM_GAMEPADS = 2;
+  protected static final int REQUEST_CONFIG_WIFI_CHANNEL = 1;
+  protected static final int NUM_GAMEPADS = 2;
 
   protected WifiManager.WifiLock wifiLock;
   protected RobotConfigFileManager cfgFileMgr;

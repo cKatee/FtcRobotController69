@@ -7,39 +7,20 @@ import static org.firstinspires.ftc.teamcode.GlutenCode.utils.AngleWrap;
 import static org.firstinspires.ftc.teamcode.RobotClass.*;
 import static org.firstinspires.ftc.teamcode.RobotClass.headingError;
 
-public class MotionProfiledPoseStablization extends PoseStablizationController {
+public class LQRMotionProfiledPoseStabalizationController extends MotionProfiledPoseStablization {
 
-    // time that the last update occured at
-    protected double time_of_last_update = 0;
+    protected double LQR_K = 7.234;
+    protected double LQR_Kr = LQR_K;
+    protected double LQR_scaler = 0.01;
 
-    // has the robot started a motion profiled move to point? this is used
-
-    protected boolean hasStarted = false;
-
-    // approx the number of milliseconds one loop takes
-    protected double loop_time_est = 23;
-
-    // time in milliseconds we take to accelerate
-    protected double acceleration_time = 700;
-
-    // time of starting the pose motion profiled move
-
-    protected double startTime = 0;
-
-    // the amount on each iteration that we increase the power scalar by inorder to ramp acceleration
-    protected double rate_of_acceleration =  1 / (acceleration_time / loop_time_est);
-
-    // the amount we scale the power by inorder to speedramp; init to rate_of_accel because its a small non-0 number.
-    protected double powerScaler = rate_of_acceleration;
+    OneDimensionalLQRController translationLQR = new OneDimensionalLQRController(LQR_K,LQR_Kr,LQR_scaler);
 
 
-
-    public MotionProfiledPoseStablization(RobotClass robot) {
+    public LQRMotionProfiledPoseStabalizationController(RobotClass robot) {
         super(robot);
-
     }
 
-
+    @Override
     public boolean goToPosition(position targetPose, double tolerance) {
 
         if (hasStarted) {
@@ -74,12 +55,10 @@ public class MotionProfiledPoseStablization extends PoseStablizationController {
         headingError = AngleWrap(-robot.normalizeAngleRR(targetAngle - angle));
 
 
-        double d_error_x = (robot.xError - last_error_x) / (currentTime - timeOfLastupdate);
-        double d_error_y = (robot.yError - last_error_y) / (currentTime - timeOfLastupdate);
         double d_error_heading = (headingError - last_error_angle) / (currentTime - timeOfLastupdate);
 
-        xPower = ((robot.xError * kp) + (d_error_x * kd)) * powerScaler;
-        yPower = ((robot.yError * kp) + (d_error_y * kd)) * powerScaler;
+        xPower = translationLQR.outputLQR(targetPose.getX(),robotPose.getX());
+        yPower = translationLQR.outputLQR(targetPose.getY(),robotPose.getY());
         yPower = -yPower;
         turnPower = ((headingError * kpTurn) + (d_error_heading * kdTurn)) * powerScaler;
 
@@ -95,24 +74,6 @@ public class MotionProfiledPoseStablization extends PoseStablizationController {
         }
 
         return isRobotWithinAllowedToleranceToSetpoint(tolerance);
-    }
-
-
-    /**
-     * is to be run between finishing moving to a position so we can cleanup variables that need to be set in a particular way
-     */
-    protected void cleanUp() {
-        hasStarted = false;
-        powerScaler = rate_of_acceleration;
-    }
-
-    /**
-     * calculates new value to ramp up by determined by the loop time
-     * @param dt delta time
-     * @return the value to increase the power level by
-     */
-    protected double getCurrentRateOfAccel(double dt) {
-        return 1 / (acceleration_time / dt);
     }
 
 

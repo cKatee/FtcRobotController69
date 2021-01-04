@@ -7,8 +7,8 @@ package org.firstinspires.ftc.teamcode.geometry;
  * some of these methods do.
  */
 public class Pose2d {
-    private final Translation2d m_translation;
-    private final Rotation2d m_rotation;
+    protected final Translation2d m_translation;
+    protected final Rotation2d m_rotation;
 
     /**
      * Constructs a pose at the origin facing toward the positive X axis.

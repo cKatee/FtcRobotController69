@@ -148,4 +148,9 @@ public class position {
     }
 
 
+    public void setPosition(position pos) {
+        this.x = pos.x;
+        this.y = pos.y;
+        this.angle = new angle(pos.getAngleRadians());
+    }
 }

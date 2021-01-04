@@ -17,7 +17,8 @@ public class RingDetector extends OpenCvPipeline {
     private int HORIZON = (int)((100.0 / 320.0) * CAMERA_WIDTH);
     private double MIN_WIDTH = (50.0 / 320.0) * CAMERA_WIDTH;
     private final double BOUND_RATIO = 0.7;
-
+    public static double frameX = 0;
+    public static double frameY = 0;
     @Override
     public Mat processFrame(Mat input) {
 
@@ -54,6 +55,9 @@ public class RingDetector extends OpenCvPipeline {
             }
             Imgproc.rectangle(ret, maxRect, new Scalar(0.0, 0.0, 255.0), 2);
             System.out.println("x: " + maxRect.x + "y: " + maxRect.y);
+
+            frameX = maxRect.x;
+            frameY = maxRect.y;
             Imgproc.line(ret, new Point(.0, HORIZON), new Point(CAMERA_WIDTH, HORIZON), new Scalar(255.0, .0, 255.0));
             if (maxWidth >= MIN_WIDTH) {
                 double aspectRatio = (double)maxRect.height / (double)maxRect.width;
@@ -84,4 +88,5 @@ public class RingDetector extends OpenCvPipeline {
     public enum Height {
         ZERO, ONE, FOUR, NOT_SCANNED
     }
+
 }

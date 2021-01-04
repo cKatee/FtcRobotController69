@@ -13,7 +13,7 @@ public class pathFollower {
     protected int pathFollowingIndex = 0;
 
     // state of the path follower
-    private pathFollowingStates path_following_state = pathFollowingStates.START;
+    protected pathFollowingStates path_following_state = pathFollowingStates.START;
 
 
     // when true, allows path to be followed again and again until the method is not being called.

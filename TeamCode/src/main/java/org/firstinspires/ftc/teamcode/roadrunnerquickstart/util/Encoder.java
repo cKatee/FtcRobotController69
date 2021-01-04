@@ -8,9 +8,9 @@ import com.qualcomm.robotcore.hardware.DcMotorEx;
  * slot's motor direction
  */
 public class Encoder {
-    private final static int CPS_STEP = 0x10000;
+    protected final static int CPS_STEP = 0x10000;
 
-    private static double inverseOverflow(double input, double estimate) {
+    protected static double inverseOverflow(double input, double estimate) {
         double real = input;
         while (Math.abs(estimate - real) > CPS_STEP / 2.0) {
             real += Math.signum(estimate - real) * CPS_STEP;
@@ -22,7 +22,7 @@ public class Encoder {
         FORWARD(1),
         REVERSE(-1);
 
-        private int multiplier;
+        protected int multiplier;
 
         Direction(int multiplier) {
             this.multiplier = multiplier;
@@ -33,14 +33,14 @@ public class Encoder {
         }
     }
 
-    private DcMotorEx motor;
-    private NanoClock clock;
+    protected DcMotorEx motor;
+    protected NanoClock clock;
 
-    private Direction direction;
+    protected Direction direction;
 
-    private int lastPosition;
-    private double velocityEstimate;
-    private double lastUpdateTime;
+    protected int lastPosition;
+    protected double velocityEstimate;
+    protected double lastUpdateTime;
 
     public Encoder(DcMotorEx motor, NanoClock clock) {
         this.motor = motor;

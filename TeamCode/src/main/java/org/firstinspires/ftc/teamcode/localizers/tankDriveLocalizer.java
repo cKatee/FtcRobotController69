@@ -7,9 +7,9 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveTrain;
 public class tankDriveLocalizer extends Localizer {
 
 
-    private double fr, fl, bl, br, theta;
+    protected double fr, fl, bl, br, theta;
 
-    private double Lastfr, Lastfl, Lastbl, Lastbr, Lasttheta;
+    protected double Lastfr, Lastfl, Lastbl, Lastbr, Lasttheta;
 
 
     public tankDriveLocalizer(DriveTrain drive, position startPose) {

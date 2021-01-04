@@ -11,7 +11,7 @@ public class path {
     // false unless the path is completed.  This is to be set by the path following algorithm when the final point in the path has reach an acceptable steady state
     public boolean pathHasBeenCompleted = false;
 
-    private ArrayList<pathPosition> pathPositions = new ArrayList<>();
+    protected ArrayList<pathPosition> pathPositions = new ArrayList<>();
 
     /**
      * blank constructor pog moment

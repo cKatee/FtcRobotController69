@@ -37,6 +37,11 @@ public class DriveTrain {
 
     public final double TRACK_WIDTH = 12.5;
 
+    public double last_FrontLeft_Power = 0;
+    public double last_FrontRight_Power = 0;
+    public double last_BackRight_Power = 0;
+    public double last_BackLeft_Power = 0;
+
     public DriveTrain(DcMotor FrontLeft, DcMotor FrontRight, DcMotor BackLeft, DcMotor BackRight) {
 
         this.FrontLeft = FrontLeft;
@@ -61,19 +66,24 @@ public class DriveTrain {
         br = Range.clip(br, -1, 1);
 
 
-        if (FrontLeft.getPower() != fl) {
+        if (last_FrontLeft_Power != fl) {
             FrontLeft.setPower(fl);
         }
-        if (FrontRight.getPower() != fr) {
+        if (last_FrontRight_Power != fr) {
             FrontRight.setPower(fr);
         }
-        if (BackLeft.getPower() != bl) {
+        if (last_BackLeft_Power != bl) {
             BackLeft.setPower(bl);
         }
 
-        if (BackRight.getPower() != br) {
+        if (last_BackRight_Power != br) {
             BackRight.setPower(br);
         }
+
+        last_BackLeft_Power = bl;
+        last_BackRight_Power = br;
+        last_FrontLeft_Power = fl;
+        last_FrontRight_Power = fr;
 
     }
 

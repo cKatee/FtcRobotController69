@@ -6,7 +6,7 @@ import org.firstinspires.ftc.teamcode.subsystems.DriveTrain;
 public abstract class Localizer {
 
     public DriveTrain drive;
-    private position pose;
+    protected position pose;
 
     public Localizer(DriveTrain drive, position startPose) {
         this.drive = drive;

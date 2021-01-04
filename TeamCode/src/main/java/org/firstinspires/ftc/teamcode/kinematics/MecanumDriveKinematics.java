@@ -37,7 +37,7 @@ import org.firstinspires.ftc.teamcode.geometry.Translation2d;
  * the robot on the field using encoders and a gyro.
  */
 public class MecanumDriveKinematics {
-    private SimpleMatrix m_inverseKinematics;
+    protected SimpleMatrix m_inverseKinematics;
     private final SimpleMatrix m_forwardKinematics;
 
     private final Translation2d m_frontLeftWheelMeters;

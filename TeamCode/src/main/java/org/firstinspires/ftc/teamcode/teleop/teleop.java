@@ -1,6 +1,7 @@
 package org.firstinspires.ftc.teamcode.teleop;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.hardware.lynx.LynxModule;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
@@ -9,6 +10,8 @@ import org.firstinspires.ftc.teamcode.RobotClass;
 import org.firstinspires.ftc.teamcode.geometry.position;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
+
+import java.util.List;
 
 @TeleOp
 public class teleop extends LinearOpMode {
@@ -51,6 +54,8 @@ public class teleop extends LinearOpMode {
     private double shooter_velocity = 0;
     private double last_shooter_velocity = 100000;
 
+    // time in between shots
+    private double shooter_actuation_time_for_multi_shots_to_be_selected = 100000;
     @Override
     public void runOpMode() throws InterruptedException {
 
@@ -64,7 +69,13 @@ public class teleop extends LinearOpMode {
         telemetry.update();
         waitForStart();
         double dumb_servo = 1;
+
+        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
+
+
         while (opModeIsActive()) {
+
+
             timer.reset();
             roadrunnerOdometry.updatePoseEstimate();
 
@@ -146,7 +157,7 @@ public class teleop extends LinearOpMode {
                     shooter_velocity = 0;
 
                     if (shooter_velocity != last_shooter_velocity) {
-                        robot.shooter.setVelocity(shooter_velocity);
+                        robot.shooter.setPower(shooter_velocity);
                     }
 
                     last_shooter_velocity = shooter_velocity;
@@ -157,8 +168,7 @@ public class teleop extends LinearOpMode {
                     } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.REDUCED_SPEED;
                     }
-                    robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
-                    robot.shooter.setVelocity(robot.flywheelticksperminute);
+                    //robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
 
                     shooter_velocity = robot.flywheelticksperminute;
 
@@ -170,7 +180,7 @@ public class teleop extends LinearOpMode {
                     break;
                 case REDUCED_SPEED:
                     shooter_velocity = robot.powerShotTicksPerMinute;
-                    robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+                    robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
                     if (turnOnShooter && (PREVIOUS_SHOOTER_BUTTON_STATE != turnOnShooter)) {
                         SHOOTER_MOTOR_STATE = shooterMotorState.OFF;
                     } else if (turnOnShooterSlow && (PREVIOUS_SHOOTER_SLOW_BUTTON_STATE != turnOnShooterSlow)) {
@@ -188,21 +198,26 @@ public class teleop extends LinearOpMode {
 
                 if (SHOOTER_MOTOR_STATE.equals(shooterMotorState.REDUCED_SPEED)) {
                     if (shootRing) {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
+                        robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_OUT);
                     } else {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+                        robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
                     }
                 }
                 else {
-                    if (System.currentTimeMillis() - time_of_shooter_state_change >= 140) {
+                    if (shooter_is_actuated) {
+                        shooter_actuation_time_for_multi_shots_to_be_selected = 200;
+                    } else {
+                        shooter_actuation_time_for_multi_shots_to_be_selected = 140;
+                    }
+                    if (System.currentTimeMillis() - time_of_shooter_state_change >= shooter_actuation_time_for_multi_shots_to_be_selected) {
                         time_of_shooter_state_change = System.currentTimeMillis();
                         shooter_is_actuated = !shooter_is_actuated;
                     }
 
                     if (shooter_is_actuated) {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
+                        robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_OUT);
                     } else {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+                        robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
 
                     }
                 }
@@ -211,7 +226,7 @@ public class teleop extends LinearOpMode {
 
             } else {
                 shooter_is_actuated = false;
-                robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+                robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
             }
 
 
@@ -221,8 +236,8 @@ public class teleop extends LinearOpMode {
                         WOBBLE_LIFT_STATE = wobbleLiftstates.MAX_HEIGHT;
                     }
                     setpoint = robot.LIFT_IN;
-                    robot.wrist.setPosition(robot.WRIST_IN);
-                    robot.claw.setPosition(robot.CLAW_CLOSED);
+                    robot.setWristLynxOptimized(robot.WRIST_IN);
+                    robot.setClawLynxOptimized(robot.CLAW_CLOSED);
                     break;
                 case MAX_HEIGHT:
                     if (wobble_state_advance && !PREVIOUS_WOBBLE_LIFT_ADVANCE_FORWARD_BUTTON_STATE) {
@@ -231,8 +246,8 @@ public class teleop extends LinearOpMode {
                     else if (wobble_state_backward && !PREVIOUS_WOBBLE_LIFT_ADVANCE_BACKWARD_BUTTON_STATE) {
                         WOBBLE_LIFT_STATE = wobbleLiftstates.IN;
                     }
-                    robot.wrist.setPosition(robot.WRIST_IN);
-                    robot.claw.setPosition(robot.CLAW_CLOSED);
+                    robot.setWristLynxOptimized(robot.WRIST_IN);
+                    robot.setClawLynxOptimized(robot.CLAW_CLOSED);
                     setpoint = robot.LIFT_MAX;
                     break;
                 case MID:
@@ -242,19 +257,19 @@ public class teleop extends LinearOpMode {
                     else if (wobble_state_backward && !PREVIOUS_WOBBLE_LIFT_ADVANCE_BACKWARD_BUTTON_STATE) {
                         WOBBLE_LIFT_STATE = wobbleLiftstates.MAX_HEIGHT;
                     }
-                    robot.wrist.setPosition(robot.WRIST_FOR_PLACING_OUTSIDE);
-                    robot.claw.setPosition(robot.CLAW_CLOSED);
+                    robot.setWristLynxOptimized(robot.WRIST_FOR_PLACING_OUTSIDE);
+                    robot.setClawLynxOptimized(robot.CLAW_CLOSED);
                     setpoint = robot.LIFT_MID;
                     break;
                 case DOWN:
                     if (wobble_state_backward && !PREVIOUS_WOBBLE_LIFT_ADVANCE_BACKWARD_BUTTON_STATE) {
                         WOBBLE_LIFT_STATE = wobbleLiftstates.MID;
-                        robot.claw.setPosition(robot.CLAW_CLOSED);
+                        robot.setClawLynxOptimized(robot.CLAW_CLOSED);
                         sleep(500);
 
                     }
-                    robot.wrist.setPosition(robot.WRIST_FOR_GRAB);
-                    robot.claw.setPosition(robot.CLAW_OPEN);
+                    robot.setWristLynxOptimized(robot.WRIST_FOR_GRAB);
+                    robot.setClawLynxOptimized(robot.CLAW_OPEN);
                     setpoint = robot.LIFT_DOWN;
                     break;
 
@@ -283,8 +298,8 @@ public class teleop extends LinearOpMode {
 
             */
 
-            System.out.println("Elapsed time:" + timer.milliseconds());
-
+            System.out.println("odo x:" + robot.robotPose.getX() + " odo y: " + robot.robotPose.getY() + " angle odo: " + robot.robotPose.getAngleDegrees());
+            System.out.println("loop time" + timer.milliseconds());
         }
 
     }

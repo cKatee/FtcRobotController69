@@ -56,12 +56,12 @@ public class SampleRevBlinkinLedDriver extends OpMode {
     /*
      * Change the pattern every 10 seconds in AUTO mode.
      */
-    private final static int LED_PERIOD = 10;
+    protected final static int LED_PERIOD = 10;
 
     /*
      * Rate limit gamepad button presses to every 500ms.
      */
-    private final static int GAMEPAD_LOCKOUT = 500;
+    protected final static int GAMEPAD_LOCKOUT = 500;
 
     RevBlinkinLedDriver blinkinLedDriver;
     RevBlinkinLedDriver.BlinkinPattern pattern;

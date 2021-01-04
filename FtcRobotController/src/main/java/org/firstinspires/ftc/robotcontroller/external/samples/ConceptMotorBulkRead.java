@@ -80,9 +80,9 @@ public class ConceptMotorBulkRead extends LinearOpMode {
 
     final int       TEST_CYCLES    = 500;   // Number of control cycles to run to determine cycle times.
 
-    private DcMotorEx m1, m2, m3, m4; // Motor Objects
-    private long      e1, e2, e3, e4; // Encoder Values
-    private double    v1, v2, v3, v4; // Velocities
+    protected DcMotorEx m1, m2, m3, m4; // Motor Objects
+    protected long      e1, e2, e3, e4; // Encoder Values
+    protected double    v1, v2, v3, v4; // Velocities
 
     // Cycle Times
     double t1 = 0;

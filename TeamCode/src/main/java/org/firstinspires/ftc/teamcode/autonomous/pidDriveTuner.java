@@ -5,30 +5,32 @@ import com.acmerobotics.roadrunner.geometry.Pose2d;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.DistanceUnit;
+import org.firstinspires.ftc.teamcode.controllers.LQRMotionProfiledPoseStabalizationController;
 import org.firstinspires.ftc.teamcode.controllers.MotionProfiledPoseStablization;
 import org.firstinspires.ftc.teamcode.controllers.PoseStablizationController;
 import org.firstinspires.ftc.teamcode.controllers.pathFollower;
 import org.firstinspires.ftc.teamcode.geometry.path;
+import org.firstinspires.ftc.teamcode.geometry.pathPosition;
 import org.firstinspires.ftc.teamcode.geometry.position;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 
 @Autonomous
 public class pidDriveTuner extends auto {
     private int pathNum = 1;
-    private position path1target1 = new position(90,0,Math.toRadians(180));
-    private position path1target2 = new position(45,20,Math.toRadians(90));
-    private position path1target3 = new position(0,0,Math.toRadians(0));
+    private pathPosition path1target1 = new pathPosition(90,0,Math.toRadians(180),1.2);
+    private pathPosition path1target2 = new pathPosition(45,20,Math.toRadians(90),1.2);
+    private pathPosition path1target3 = new pathPosition(0,0,Math.toRadians(0),1.2);
 
-    private position path2target1 = new position(45,20,Math.toRadians(180));
-    private position path2target2 = new position(90,0,Math.toRadians(45));
-    private position path2Target3 = new position(0,0,Math.toRadians(0));
+    private pathPosition path2target1 = new pathPosition(45,20,Math.toRadians(180),1.2);
+    private pathPosition path2target2 = new pathPosition(90,0,Math.toRadians(45),1.2);
+    private pathPosition path2Target3 = new pathPosition(0,0,Math.toRadians(0),1.2);
     private path targetPath1 = new path();
     private path targetPath2 = new path();
 
 
 
     private ElapsedTime timer = new ElapsedTime();
-    private MotionProfiledPoseStablization poseStablizationController = new MotionProfiledPoseStablization(robot);
+    private MotionProfiledPoseStablization poseStablizationController = new LQRMotionProfiledPoseStabalizationController(robot);
     private pathFollower pathFollower = new pathFollower(poseStablizationController);
 
 

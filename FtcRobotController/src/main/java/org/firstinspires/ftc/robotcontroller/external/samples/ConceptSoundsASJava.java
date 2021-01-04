@@ -74,14 +74,14 @@ import java.io.File;
 public class ConceptSoundsASJava extends LinearOpMode {
 
     // Declare OpMode members.
-    private boolean goldFound;      // Sound file present flags
-    private boolean silverFound;
+    protected boolean goldFound;      // Sound file present flags
+    protected boolean silverFound;
 
-    private boolean isX = false;    // Gamepad button state variables
-    private boolean isB = false;
+    protected boolean isX = false;    // Gamepad button state variables
+    protected boolean isB = false;
 
-    private boolean wasX = false;   // Gamepad button history variables
-    private boolean WasB = false;
+    protected boolean wasX = false;   // Gamepad button history variables
+    protected boolean WasB = false;
 
     @Override
     public void runOpMode() {

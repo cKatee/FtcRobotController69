@@ -5,10 +5,10 @@ import static java.lang.Math.toRadians;
 
 public class angle {
     
-    private final double ARC_SECONDS_CONSTANT = 3600;
-    private double radians;
-    private double degrees;
-    private double arcSeconds;
+    protected final double ARC_SECONDS_CONSTANT = 3600;
+    protected double radians;
+    protected double degrees;
+    protected double arcSeconds;
 
     /**
      * radians constructor 
