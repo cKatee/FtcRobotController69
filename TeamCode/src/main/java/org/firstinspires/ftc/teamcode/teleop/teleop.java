@@ -7,6 +7,8 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.RobotClass;
+import org.firstinspires.ftc.teamcode.autonomous.RedLeftRefactored;
+import org.firstinspires.ftc.teamcode.controllers.MotionProfiledPoseStablization;
 import org.firstinspires.ftc.teamcode.geometry.position;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 import org.openftc.easyopencv.OpenCvCamera;
@@ -33,6 +35,11 @@ public class teleop extends LinearOpMode {
     private boolean shooter_is_actuated = false;
     private boolean last_shooter_actuated = false;
     private double time_of_shooter_state_change = 0;
+    private position powershot_general_position = new position(63,-34,Math.toRadians(-174));
+
+    private position high_goal_1 = new position(powershot_general_position.getX(), powershot_general_position.getY() - 5.5, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+    private position high_goal_2 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 1, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+    private position high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 9, powershot_general_position.getAngleRadians() + Math.toRadians(5));
 
     private boolean PREVIOUS_INTAKE_STATE = false;
     private double time_of_intake_off = 0;
@@ -45,7 +52,7 @@ public class teleop extends LinearOpMode {
     double fith_pixel_average_measurement = 0;
     double pixel_average = 0;
     private double setpoint = 0;
-    private position SHOOTING_POSITION = new position(24,0,Math.toRadians(172));
+    private position SHOOTING_POSITION = new position(59.04603135856674,-7.18,Math.toRadians(189.55));
     private ElapsedTime timer = new ElapsedTime();
 
     private double intake_speed = 0;
@@ -54,14 +61,16 @@ public class teleop extends LinearOpMode {
     private double shooter_velocity = 0;
     private double last_shooter_velocity = 100000;
 
+    private powerShotAimStates power_shot_automation_state = powerShotAimStates.NOT_BEGUN;
+
     // time in between shots
     private double shooter_actuation_time_for_multi_shots_to_be_selected = 100000;
     @Override
     public void runOpMode() throws InterruptedException {
 
-
+        MotionProfiledPoseStablization MotionProfiledController = new MotionProfiledPoseStablization(robot);
         SampleMecanumDrive roadrunnerOdometry = new SampleMecanumDrive(hardwareMap);
-
+        roadrunnerOdometry.setPoseEstimate(new Pose2d(0,0,Math.toRadians(180)));
         robot = new RobotClass();
         robot.init(hardwareMap);
         robot.setBreak();
@@ -88,7 +97,7 @@ public class teleop extends LinearOpMode {
             boolean shootRing = gamepad1.y;
             boolean wobble_state_advance = gamepad1.dpad_up;
             boolean wobble_state_backward = gamepad1.dpad_down;
-            boolean intake_on = !sticksNotOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF);
+            boolean intake_on = !sticksOutsideThreshold(0.8) && SHOOTER_MOTOR_STATE.equals(shooterMotorState.OFF);
 
 
             if (intake_on) {
@@ -115,30 +124,55 @@ public class teleop extends LinearOpMode {
                         robot.robotRelative(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x + (vision_error * 0.002));
 
                      */
-                    if (gamepad1.left_bumper) {
+                    if ((shootRing) && !sticksOutsideThreshold(0.0)) {
                         Pose2d estimate = roadrunnerOdometry.getPoseEstimate();
                         SHOOTING_POSITION.setPose2dRoadRunner(estimate);
+                    } else if (gamepad1.left_bumper){
+
+                        roadrunnerOdometry.setPoseEstimate(new Pose2d(130.3,-48.42,Math.toRadians(180)));
+
                     } else {
                         robot.robotRelative(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x);
                     }
                     if (gamepad1.a) {
                         DRIVING_STATE = drivingStates.AUTO_AIM;
-                    } else if (gamepad1.right_bumper) {
+                    } else if (gamepad1.dpad_left) {
                         DRIVING_STATE = drivingStates.POWER_SHOT_AIM;
                     }
                     break;
                 case AUTO_AIM:
 
                     robot.goodDriveToPoint(SHOOTING_POSITION);
-                    if (sticksNotOutsideThreshold(0.1)) {
+                    if (sticksOutsideThreshold(0.1)) {
                         DRIVING_STATE = drivingStates.HUMAN_CONTROL;
                     }
                     break;
                 case POWER_SHOT_AIM:
-                    robot.goodDriveToPoint(new position(SHOOTING_POSITION.getX()+5,SHOOTING_POSITION.getY()-20,SHOOTING_POSITION.getAngleRadians()));
-                    if (sticksNotOutsideThreshold(0.1)) {
+                    if (sticksOutsideThreshold(0.1)) {
                         DRIVING_STATE = drivingStates.HUMAN_CONTROL;
                     }
+                    switch (power_shot_automation_state) {
+                        case NOT_BEGUN:
+                            break;
+                        case GOING_TO_FIRST_POWERSHOT:
+                            if (MotionProfiledController.goToPosition(high_goal_1,2.3)) {
+
+                            }
+                            break;
+                        case SHOOTING_FIRST_POWER_SHOT:
+                            break;
+                        case GOING_TO_SECOND_POWER_SHOT:
+                            break;
+                        case SHOOTING_SECOND_POWER_SHOT:;
+                            break;
+                        case GOING_TO_THIRD_POWER_SHOT:
+                            break;
+                        case SHOOTING_THIRD_POWER_SHOT:
+                            break;
+
+                    }
+
+
                     break;
                 case STOPPED:
                     robot.drive.STOP();
@@ -304,7 +338,7 @@ public class teleop extends LinearOpMode {
 
     }
 
-    public boolean sticksNotOutsideThreshold(double threshold) {
+    public boolean sticksOutsideThreshold(double threshold) {
         boolean SticksOutsideThreshold = false;
 
         if (Math.abs(gamepad1.left_stick_y) > threshold) {
@@ -345,4 +379,15 @@ public class teleop extends LinearOpMode {
         MID,
         DOWN
     }
+    public enum powerShotAimStates {
+        NOT_BEGUN,
+        GOING_TO_FIRST_POWERSHOT,
+        GOING_TO_SECOND_POWER_SHOT,
+        GOING_TO_THIRD_POWER_SHOT,
+        SHOOTING_FIRST_POWER_SHOT,
+        SHOOTING_SECOND_POWER_SHOT,
+        SHOOTING_THIRD_POWER_SHOT
+
+    }
+
 }

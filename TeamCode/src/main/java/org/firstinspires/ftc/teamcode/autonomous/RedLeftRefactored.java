@@ -21,7 +21,7 @@ import org.openftc.easyopencv.OpenCvCameraRotation;
 
 import java.util.ArrayList;
 
-import static org.firstinspires.ftc.teamcode.autonomous.auto.auto_states.to_second_wobble_spot;
+import static org.firstinspires.ftc.teamcode.autonomous.auto.auto_states.*;
 
 @Autonomous
 public class RedLeftRefactored extends auto {
@@ -77,6 +77,9 @@ public class RedLeftRefactored extends auto {
     private long time_of_shot_1_actuation = 0;
     private long time_of_shot_2_actuation = 0;
     private long time_of_shot_3_actuation = 0;
+
+    private boolean has_moved_servo_out = false;
+
     /**
      * timersss
      */
@@ -94,8 +97,10 @@ public class RedLeftRefactored extends auto {
     private pathFollower pathFollowingController = new pathFollower(poseStablizationController);
 
 
+
     private ElapsedTime timer = new ElapsedTime();
 
+    private shooter_servo_states shooterServoState = shooter_servo_states.IGNORE;
 
 
     @Override
@@ -134,8 +139,8 @@ public class RedLeftRefactored extends auto {
                     selectedShootingRPM = robot.powerShotSpeed;
                     selectedShootingTPM = robot.powerShotTicksPerMinute;
                     high_goal_1 = new position(powershot_general_position.getX(), powershot_general_position.getY() - 5.5, powershot_general_position.getAngleRadians() + Math.toRadians(5));
-                    high_goal_2 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 1, powershot_general_position.getAngleRadians() + Math.toRadians(5));
-                    high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 9, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+                    high_goal_2 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 3, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+                    high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 11, powershot_general_position.getAngleRadians() + Math.toRadians(5));
 
 
                     second_wobble_goal = new position(27,-25,Math.toRadians(0));
@@ -229,51 +234,56 @@ public class RedLeftRefactored extends auto {
                     break;
                 case SHOOT_FIRST_POWER_SHOT:
                     poseStablizationController.goToPosition(high_goal_1, 1.35);
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80  && Math.abs(robot.yError) < 1.35) {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
-                        if (timer.milliseconds() > shooter_actuation_time) {
-                            robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
-                            AUTO_STATE = auto_states.SHOOT_SECOND_POWER_SHOT;
-                            time_of_shot_1 = System.currentTimeMillis();
-                            timer.reset();
-                        }
 
-
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.goToPosition(high_goal_1,2) && timer.milliseconds() > 600 && !has_moved_servo_out) {
+                        shooterServoState = shooter_servo_states.OUT;
+                        has_moved_servo_out = true;
+                        timer.reset();
                     }
+                    if (has_moved_servo_out && timer.milliseconds() > 300) {
+                        shooterServoState = shooter_servo_states.IN;
+                        AUTO_STATE = SHOOT_SECOND_POWER_SHOT;
+                        has_moved_servo_out = false;
+                        timer.reset();
+                    }
+
 
                     break;
                 case SHOOT_SECOND_POWER_SHOT:
                     poseStablizationController.goToPosition(high_goal_2,1.35);
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && (System.currentTimeMillis() - time_of_shot_1) > time_between_shots && Math.abs(robot.yError) < 1.35) {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
-                        robot.drive.STOP();
-                        if (timer.milliseconds() > shooter_actuation_time) {
-                            robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
-                            sleep(300);
-                            AUTO_STATE = auto_states.SHOOT_THIRD_POWER_SHOT;
-                            time_of_shot_2 = System.currentTimeMillis();
-                            timer.reset();
-
-                        }
-
-
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.goToPosition(high_goal_2,2) && timer.milliseconds() > 600 && !has_moved_servo_out) {
+                        shooterServoState = shooter_servo_states.OUT;
+                        has_moved_servo_out = true;
+                        timer.reset();
                     }
+                    if (has_moved_servo_out && timer.milliseconds() > 300) {
+                        shooterServoState = shooter_servo_states.IN;
+                        AUTO_STATE = SHOOT_THIRD_POWER_SHOT;
+                        has_moved_servo_out = false;
+                        timer.reset();
+                    }
+
+
                     break;
                 case SHOOT_THIRD_POWER_SHOT:
                     poseStablizationController.goToPosition(high_goal_3, 1.35);
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && (System.currentTimeMillis() - time_of_shot_2) > time_between_shots && Math.abs(robot.yError) < 1.35) {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
-
-                        if (timer.milliseconds() > shooter_actuation_time * 2) {
-
-                            AUTO_STATE = auto_states.DRIVE_TO_WOBBLE_ZONE;
-
-                        }
-
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.goToPosition(high_goal_3,2) && timer.milliseconds() > 600 && !has_moved_servo_out) {
+                        shooterServoState = shooter_servo_states.OUT;
+                        has_moved_servo_out = true;
+                        timer.reset();
                     }
+                    if (has_moved_servo_out && timer.milliseconds() > 300) {
+                        shooterServoState = shooter_servo_states.IN;
+                        AUTO_STATE = DRIVE_TO_WOBBLE_ZONE;
+                        has_moved_servo_out = false;
+                        timer.reset();
+                    }
+
+
 
                     break;
                 case DRIVE_TO_WOBBLE_ZONE:
+                    shooterServoState = shooter_servo_states.IGNORE;
                     if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() + 2.5,wobble_goal_spot.getY() + 5,wobble_goal_spot.getAngleRadians()), 3)) {
                         AUTO_STATE = auto_states.PLACE_WOBBLE_GOAL;
                         timeOfWobbleDelivery1Start = System.currentTimeMillis();
@@ -454,10 +464,23 @@ public class RedLeftRefactored extends auto {
                     } else {
                         arm_position = robot.LIFT_MAX;
                     }
-                    robot.wrist.setPosition(robot.WRIST_IN);
-                    robot.claw.setPosition(robot.CLAW_CLOSED);
+                    robot.setWristLynxOptimized(robot.WRIST_IN);
+                    robot.setClawLynxOptimized(robot.CLAW_CLOSED);
                     break;
             }
+
+            switch (shooterServoState) {
+                case IN:
+                    robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
+                    break;
+                case OUT:
+                    robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_OUT);
+                    break;
+                case IGNORE:
+                    break;
+            }
+
+
 
             robot.driveArmToSetpoint(arm_position);
             telemetry.addData("shooter velo", (robot.shooter.getVelocity() / 28) * 60);

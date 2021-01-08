@@ -48,4 +48,10 @@ public class auto extends LinearOpMode {
         SHOOT_RING_FOUR,
         PARK_ON_LINE
     }
+
+    public enum shooter_servo_states {
+        IN,
+        OUT,
+        IGNORE
+    }
 }
