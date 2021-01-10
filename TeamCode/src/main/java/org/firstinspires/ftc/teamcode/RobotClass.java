@@ -72,10 +72,11 @@ public class RobotClass {
     
     public final double LIFT_MAX = 359;
     public final double LIFT_MID = 400;
-    public final double LIFT_DOWN = 850;
+    public final double LIFT_DOWN = 800;
+    public final double LIFT_GRAB = 850;
 
 
-    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(400, 1, 0, 12.5);
+    public static PIDFCoefficients MOTOR_VELO_PID = new PIDFCoefficients(400, 1, 0, 9.5);
 
     /*
     public final double LIFT_MAX = LIFT_IN;
@@ -85,7 +86,7 @@ public class RobotClass {
      */
 
     private double LAST_CLAW_POSITION = 1000000;
-    public final double CLAW_CLOSED = 0.8;
+    public final double CLAW_CLOSED = 0.83;
     public final double CLAW_OPEN = 0.2;
 
     private double LAST_WRIST_POSITION = 100000;
@@ -108,6 +109,9 @@ public class RobotClass {
 
     public final double powerShotSpeed = 3480;
     public final double powerShotTicksPerMinute = (powerShotSpeed * 28) / 60;
+
+    public final double slowPowerShotSpeed = 3400;
+    public final double slowPowerShotTPM = (slowPowerShotSpeed * 28) / 60;
 
     private double i_error = 0;
     private double d_error = 0;

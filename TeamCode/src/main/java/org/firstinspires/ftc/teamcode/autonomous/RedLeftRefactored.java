@@ -5,21 +5,16 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.controllers.LQRMotionProfiledPoseStabalizationController;
 import org.firstinspires.ftc.teamcode.controllers.MotionProfiledPoseStablization;
-import org.firstinspires.ftc.teamcode.controllers.PoseStablizationController;
 import org.firstinspires.ftc.teamcode.controllers.pathFollower;
 import org.firstinspires.ftc.teamcode.geometry.path;
 import org.firstinspires.ftc.teamcode.geometry.pathPosition;
 import org.firstinspires.ftc.teamcode.geometry.position;
-import org.firstinspires.ftc.teamcode.insaneControlTheory.KalmanFilter;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 import org.firstinspires.ftc.teamcode.vision.RingDetector;
 import org.openftc.easyopencv.OpenCvCamera;
 import org.openftc.easyopencv.OpenCvCameraFactory;
 import org.openftc.easyopencv.OpenCvCameraRotation;
-
-import java.util.ArrayList;
 
 import static org.firstinspires.ftc.teamcode.autonomous.auto.auto_states.*;
 
@@ -43,10 +38,10 @@ public class RedLeftRefactored extends auto {
     private position second_wobble_goal = new position(26,-35,Math.toRadians(0));
     private position on_way_to_second_wobble_spot = new position(50,-30,Math.toRadians(0));
     private position to_line_avoid_wobble_goals;
-    private position line = new position(70,-12.25,Math.toRadians(180));
+    private position line = new position(70,-28,Math.toRadians(180));
     private position shoot_starting_stack_position = high_goal_general_position;
 
-    private position ring_stack = new position(50,-12,Math.toRadians(180));
+    private position ring_stack = new position(50,-10.5,Math.toRadians(180));
     private position straight_behind_ring = new position(60,ring_stack.getY(),Math.toRadians(180));
     private position infront_of_ring_stack = new position(high_goal_general_position.getX(),ring_stack.getY(),ring_stack.getAngleRadians());
 
@@ -54,7 +49,7 @@ public class RedLeftRefactored extends auto {
 
     private path pathToSecondWG = new path();
 
-    private pathPosition first_ring_of_stack = new pathPosition(ring_stack.getX() - 4,ring_stack.getY(),ring_stack.getAngleRadians(),1.8);
+    private pathPosition first_ring_of_stack = new pathPosition(ring_stack.getX() - 6,ring_stack.getY(),ring_stack.getAngleRadians(),1.8);
     private pathPosition second_ring_of_stack = new pathPosition(ring_stack.getX() - 9, ring_stack.getY(), ring_stack.getAngleRadians(),1.8);
     private pathPosition third_ring_of_stack = new pathPosition(ring_stack.getX() - 15, ring_stack.getY(), ring_stack.getAngleRadians(),1.8);
 
@@ -88,7 +83,7 @@ public class RedLeftRefactored extends auto {
     private long time_for_shot_adjust = 400;
     // time in milliseconds for the servo to push the disk
     private long shooter_actuation_time = 450;
-    private long timeForWobbleDelivery = 1500;//3 * 1000;
+    private long timeForWobbleDelivery = 1100;//3 * 1000;
     private long timeOfWobblePlace = 0;
     private long time_between_shots = 200;
     private RingDetector.Height stack;
@@ -143,8 +138,9 @@ public class RedLeftRefactored extends auto {
                     high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 11, powershot_general_position.getAngleRadians() + Math.toRadians(5));
 
 
-                    second_wobble_goal = new position(27,-25,Math.toRadians(0));
-                    wobble_goal_spot = new position(63,7,Math.toRadians(-165));
+
+                    second_wobble_goal = new position(27,-23,Math.toRadians(0));
+                    wobble_goal_spot = new position(63,12,Math.toRadians(-178));
                     break;
                 case ONE:
 
@@ -160,12 +156,12 @@ public class RedLeftRefactored extends auto {
                     selectedShootingRPM = robot.powerShotSpeed;
                     selectedShootingTPM = robot.powerShotTicksPerMinute;
                     high_goal_1 = new position(powershot_general_position.getX(), powershot_general_position.getY() - 5.5, powershot_general_position.getAngleRadians() + Math.toRadians(5));
-                    high_goal_2 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 1, powershot_general_position.getAngleRadians() + Math.toRadians(5));
-                    high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 9, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+                    high_goal_2 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 3, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+                    high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 11, powershot_general_position.getAngleRadians() + Math.toRadians(5));
 
 
                     second_wobble_goal = new position(27,-27,Math.toRadians(0));
-                    wobble_goal_spot = new position(87.5,-12,Math.toRadians(-170));
+                    wobble_goal_spot = new position(87.5,-9,Math.toRadians(180));
                     break;
                 case FOUR:
 
@@ -179,7 +175,7 @@ public class RedLeftRefactored extends auto {
 
 
 
-                    wobble_goal_spot = new position(106.5,9,Math.toRadians(-170));
+                    wobble_goal_spot = new position(105.5,9,Math.toRadians(180));
                     second_wobble_goal = new position(28,-23,Math.toRadians(0));
                     break;
                 default:
@@ -235,12 +231,12 @@ public class RedLeftRefactored extends auto {
                 case SHOOT_FIRST_POWER_SHOT:
                     poseStablizationController.goToPosition(high_goal_1, 1.35);
 
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.goToPosition(high_goal_1,2) && timer.milliseconds() > 600 && !has_moved_servo_out) {
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_1,1.8) && timer.milliseconds() > 200 && !has_moved_servo_out) {
                         shooterServoState = shooter_servo_states.OUT;
                         has_moved_servo_out = true;
                         timer.reset();
                     }
-                    if (has_moved_servo_out && timer.milliseconds() > 300) {
+                    if (has_moved_servo_out && timer.milliseconds() > 200) {
                         shooterServoState = shooter_servo_states.IN;
                         AUTO_STATE = SHOOT_SECOND_POWER_SHOT;
                         has_moved_servo_out = false;
@@ -251,12 +247,12 @@ public class RedLeftRefactored extends auto {
                     break;
                 case SHOOT_SECOND_POWER_SHOT:
                     poseStablizationController.goToPosition(high_goal_2,1.35);
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.goToPosition(high_goal_2,2) && timer.milliseconds() > 600 && !has_moved_servo_out) {
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_2,1.8) && timer.milliseconds() > 200 && !has_moved_servo_out) {
                         shooterServoState = shooter_servo_states.OUT;
                         has_moved_servo_out = true;
                         timer.reset();
                     }
-                    if (has_moved_servo_out && timer.milliseconds() > 300) {
+                    if (has_moved_servo_out && timer.milliseconds() > 200) {
                         shooterServoState = shooter_servo_states.IN;
                         AUTO_STATE = SHOOT_THIRD_POWER_SHOT;
                         has_moved_servo_out = false;
@@ -267,12 +263,12 @@ public class RedLeftRefactored extends auto {
                     break;
                 case SHOOT_THIRD_POWER_SHOT:
                     poseStablizationController.goToPosition(high_goal_3, 1.35);
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.goToPosition(high_goal_3,2) && timer.milliseconds() > 600 && !has_moved_servo_out) {
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_3,1.8) && timer.milliseconds() > 200 && !has_moved_servo_out) {
                         shooterServoState = shooter_servo_states.OUT;
                         has_moved_servo_out = true;
                         timer.reset();
                     }
-                    if (has_moved_servo_out && timer.milliseconds() > 300) {
+                    if (has_moved_servo_out && timer.milliseconds() > 200) {
                         shooterServoState = shooter_servo_states.IN;
                         AUTO_STATE = DRIVE_TO_WOBBLE_ZONE;
                         has_moved_servo_out = false;
@@ -290,15 +286,15 @@ public class RedLeftRefactored extends auto {
                         robot.drive.STOP();
                     }
                     robot.shooter.setVelocity(0);
-                    arm_position = robot.LIFT_DOWN;
+                    arm_position = robot.LIFT_MID;
                     break;
                 case PLACE_WOBBLE_GOAL:
 
                     if (System.currentTimeMillis() - timeOfWobbleDelivery1Start > 700) {
-                        robot.claw.setPosition(robot.CLAW_OPEN);
+                        robot.setClawLynxOptimized(robot.CLAW_OPEN);
                     }
                     if ((timeForWobbleDelivery + timeOfWobbleDelivery1Start) < System.currentTimeMillis()) {
-                        robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
+                        robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
 
                         AUTO_STATE = auto_states.GO_TO_SECOND_WOBBLE_GOAL_AVOID_STACK;
                         robotPositionAtWobbleGoalPlace = new position(roadrunnerOdometry.getPoseEstimate());
@@ -310,9 +306,10 @@ public class RedLeftRefactored extends auto {
                     }
                     robot.shooter.setVelocity(0);
                     arm_position = robot.LIFT_DOWN;
-                    robot.wrist.setPosition(robot.WRIST_FOR_GRAB);
+                    robot.setWristLynxOptimized(robot.WRIST_FOR_GRAB);
                     break;
                 case GO_TO_SECOND_WOBBLE_GOAL_AVOID_STACK:
+                    arm_position = robot.LIFT_GRAB;
                     if (pathFollowingController.followPath()) {
                         AUTO_STATE = auto_states.GO_TO_SECOND_WOBBLE_GOAL;
                     }
@@ -326,8 +323,8 @@ public class RedLeftRefactored extends auto {
                     break;
 
                 case GRAB_SECOND_WOBBLE_GOAL:
-                    robot.claw.setPosition(robot.CLAW_CLOSED);
-                    if (timer.milliseconds() > 700) {
+                    robot.setClawLynxOptimized(robot.CLAW_CLOSED);
+                    if (timer.milliseconds() > 850) {
                         arm_position = robot.LIFT_MID;
                         AUTO_STATE = auto_states.AVOID_RING_STACK_TO_WOBBLE_SPOT_AGAIN;
 
@@ -348,29 +345,40 @@ public class RedLeftRefactored extends auto {
                     break;
                 case DRIVE_TO_WOBBLE_ZONE_AGAIN:
 
-                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 10,wobble_goal_spot.getY() -10,wobble_goal_spot.getAngleRadians()),3)) {
+
+                    robot.wrist.setPosition(robot.WRIST_FOR_PLACING_OUTSIDE);
+                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 2,wobble_goal_spot.getY() ,wobble_goal_spot.getAngleRadians()), 3)) {
                         AUTO_STATE = auto_states.PLACE_WOBBLE_GOAL_2;
                         timeOfWobbleDelivery1Start = System.currentTimeMillis();
+                        robot.drive.STOP();
                     }
                     robot.shooter.setVelocity(0);
                     arm_position = robot.LIFT_MID;
-                    robot.wrist.setPosition(robot.WRIST_FOR_GRAB);
-
                     break;
 
                 case PLACE_WOBBLE_GOAL_2:
-                    poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 10,wobble_goal_spot.getY() -3,wobble_goal_spot.getAngleRadians()),3);
 
-                    if (System.currentTimeMillis() - timeOfWobbleDelivery1Start > 700) {
-                        robot.claw.setPosition(robot.CLAW_OPEN);
+                    poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 2,wobble_goal_spot.getY() ,wobble_goal_spot.getAngleRadians()),3);
+
+                    if (System.currentTimeMillis() - timeOfWobbleDelivery1Start > 350) {
+                        robot.setClawLynxOptimized(robot.CLAW_OPEN);
                     }
+
                     if ((timeForWobbleDelivery + timeOfWobbleDelivery1Start) < System.currentTimeMillis()) {
+                        robot.setShooterArmLynxOptimized(robot.SHOOTER_ARM_IN);
+                        to_line_avoid_wobble_goals = new position(robot.robotPose.getX() - 15,robot.robotPose.getY() - 5,robot.robotPose.getAngleRadians());
                         AUTO_STATE = auto_states.AVOID_PLACED_GOALS;
+                        robotPositionAtWobbleGoalPlace = new position(roadrunnerOdometry.getPoseEstimate());
                         // ensure we go back 10x from where we are so we dont make the wobble goal die
-                        to_line_avoid_wobble_goals = new position(robot.robotPose.getX() - 10,robot.robotPose.getY(),Math.toRadians(180));
+                        timeOfWobblePlace = System.currentTimeMillis();
                     }
                     robot.shooter.setVelocity(0);
                     arm_position = robot.LIFT_DOWN;
+                    robot.setWristLynxOptimized(robot.WRIST_FOR_GRAB);
+
+
+
+
                     break;
                 case AVOID_PLACED_GOALS:
 
@@ -442,10 +450,10 @@ public class RedLeftRefactored extends auto {
                         }
                         for (int i = 0; i < actuation_times; i++) {
                             robot.shooterArm.setPosition(robot.SHOOTER_ARM_OUT);
-                            sleep(shooter_actuation_time);
+                            sleep(200);
                             roadrunnerOdometry.updatePoseEstimate();
                             robot.shooterArm.setPosition(robot.SHOOTER_ARM_IN);
-                            sleep(shooter_actuation_time / 2);
+                            sleep(200);
                             roadrunnerOdometry.updatePoseEstimate();
                         }
 
@@ -460,12 +468,13 @@ public class RedLeftRefactored extends auto {
                     robot.shooter.setVelocity(0);
                     robot.ring_bumper.setPosition(robot.RING_BUMPER_IN);
                     if (timeOfWobblePlace + 2000 < System.currentTimeMillis()) {
+                        robot.setWristLynxOptimized(robot.WRIST_IN);
+                        robot.setClawLynxOptimized(robot.CLAW_CLOSED);
+
                         arm_position = robot.LIFT_IN;
                     } else {
                         arm_position = robot.LIFT_MAX;
                     }
-                    robot.setWristLynxOptimized(robot.WRIST_IN);
-                    robot.setClawLynxOptimized(robot.CLAW_CLOSED);
                     break;
             }
 

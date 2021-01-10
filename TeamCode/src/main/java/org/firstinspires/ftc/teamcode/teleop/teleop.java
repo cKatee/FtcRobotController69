@@ -107,7 +107,7 @@ public class teleop extends LinearOpMode {
                     intake_speed = 1;
                 }
             } else {
-                 intake_speed = 0;
+                 intake_speed = 1;
             }
 
             if (intake_speed != last_intake_speed) {
@@ -155,7 +155,7 @@ public class teleop extends LinearOpMode {
                         case NOT_BEGUN:
                             break;
                         case GOING_TO_FIRST_POWERSHOT:
-                            if (MotionProfiledController.goToPosition(high_goal_1,2.3)) {
+                            if (MotionProfiledController.goToPositionFast(high_goal_1,2.3)) {
 
                             }
                             break;

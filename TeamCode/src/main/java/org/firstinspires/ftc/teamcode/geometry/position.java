@@ -153,4 +153,8 @@ public class position {
         this.y = pos.y;
         this.angle = new angle(pos.getAngleRadians());
     }
+
+    public com.acmerobotics.roadrunner.geometry.Pose2d toPose2d() {
+        return new com.acmerobotics.roadrunner.geometry.Pose2d(this.x,this.y,this.angle.radians);
+    }
 }

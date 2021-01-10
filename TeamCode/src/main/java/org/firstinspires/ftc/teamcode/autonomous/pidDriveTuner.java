@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 @Autonomous
 public class pidDriveTuner extends auto {
     private int pathNum = 1;
-    private pathPosition path1target1 = new pathPosition(90,0,Math.toRadians(180),1.2);
+    private position path1target1 = new position(90,0,Math.toRadians(180));
     private pathPosition path1target2 = new pathPosition(45,20,Math.toRadians(90),1.2);
     private pathPosition path1target3 = new pathPosition(0,0,Math.toRadians(0),1.2);
 
@@ -53,21 +53,7 @@ public class pidDriveTuner extends auto {
             roadrunnerOdometry.updatePoseEstimate();
             Pose2d position_estimate = roadrunnerOdometry.getPoseEstimate();
             robot.robotPose.setPose2dRoadRunner(position_estimate);
-            boolean followPath = false;
-
-            switch (pathNum) {
-                case 1:
-                    followPath = pathFollower.followPath();
-                    if (followPath) {
-                        pathNum += 1;
-                        pathFollower.setTargetPath(targetPath2);
-                    }
-                    break;
-                case 2:
-                    followPath = pathFollower.followPath();
-                    break;
-            }
-            telemetry.addData("is path complete?",followPath);
+            poseStablizationController.goToPositionFast(path1target1,2);
 
             telemetry.addData("x: ",position_estimate.getX());
             telemetry.addData("y: ",position_estimate.getY());
