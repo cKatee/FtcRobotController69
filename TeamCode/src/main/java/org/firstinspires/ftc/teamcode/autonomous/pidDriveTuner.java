@@ -17,7 +17,7 @@ import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 @Autonomous
 public class pidDriveTuner extends auto {
     private int pathNum = 1;
-    private position path1target1 = new position(90,0,Math.toRadians(180));
+    private position path1target1 = new position(90,30,Math.toRadians(180));
     private pathPosition path1target2 = new pathPosition(45,20,Math.toRadians(90),1.2);
     private pathPosition path1target3 = new pathPosition(0,0,Math.toRadians(0),1.2);
 
@@ -30,7 +30,7 @@ public class pidDriveTuner extends auto {
 
 
     private ElapsedTime timer = new ElapsedTime();
-    private MotionProfiledPoseStablization poseStablizationController = new LQRMotionProfiledPoseStabalizationController(robot);
+    private LQRMotionProfiledPoseStabalizationController poseStablizationController = new LQRMotionProfiledPoseStabalizationController(robot);
     private pathFollower pathFollower = new pathFollower(poseStablizationController);
 
 
@@ -52,11 +52,13 @@ public class pidDriveTuner extends auto {
             timer.reset();
             roadrunnerOdometry.updatePoseEstimate();
             Pose2d position_estimate = roadrunnerOdometry.getPoseEstimate();
+            poseStablizationController.goToPosition(path1target1,0.1);
             robot.robotPose.setPose2dRoadRunner(position_estimate);
-            poseStablizationController.goToPositionFast(path1target1,2);
 
             telemetry.addData("x: ",position_estimate.getX());
             telemetry.addData("y: ",position_estimate.getY());
+            telemetry.addData("x error",robot.xError);
+            telemetry.addData("y error",robot.yError);
             telemetry.addData("heading error",Math.toDegrees(robot.headingError));
             System.out.println("Loop time is: " + timer.milliseconds());
 

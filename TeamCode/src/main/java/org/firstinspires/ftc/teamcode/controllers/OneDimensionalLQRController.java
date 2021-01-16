@@ -1,5 +1,7 @@
 package org.firstinspires.ftc.teamcode.controllers;
 
+import com.qualcomm.robotcore.util.ElapsedTime;
+
 public class OneDimensionalLQRController {
 
     // reference signal scaling term
@@ -11,15 +13,26 @@ public class OneDimensionalLQRController {
     // output gain scaler
     protected double outputGain = 1;
 
+    private double integral_sum_max = 1;
+    private double integral_sum_min = -integral_sum_max;
+
+    private double integral_sum = 0;
+
+    private double Ki = 0;
+
+    private double last_setpoint = 0;
+
+    ElapsedTime timer = new ElapsedTime();
     /**
      * constructor pogg
      * @param K gain K
      * @param Kr signal scaling
      */
-    public OneDimensionalLQRController(double K, double Kr) {
+    public OneDimensionalLQRController(double K, double Kr, double Ki) {
         this.Kr = Kr;
         this.K = K;
         this.outputGain = 1;
+        this.Ki = Ki;
     }
 
     /**
@@ -28,10 +41,11 @@ public class OneDimensionalLQRController {
      * @param Kr signal scaling
      * @param outputGain
      */
-    public OneDimensionalLQRController(double K, double Kr, double outputGain) {
+    public OneDimensionalLQRController(double K, double Kr, double outputGain, double Ki) {
         this.K = K;
         this.Kr = Kr;
         this.outputGain = outputGain;
+        this.Ki = Ki;
     }
 
     /**
@@ -41,10 +55,28 @@ public class OneDimensionalLQRController {
      * @return the command to send to the motor
      */
     public double outputLQR(double reference, double state) {
+
+        if (reference != last_setpoint) {
+            integral_sum = 0;
+        }
+
         double scaledReference = reference * Kr;
         double scaledState = state * K;
         double error = scaledReference - scaledState;
-        return error * outputGain;
+
+        integral_sum += (reference - state) * timer.milliseconds();
+        if (integral_sum_max < integral_sum) {
+            integral_sum = integral_sum_max;
+        }
+        if (integral_sum_min > integral_sum) {
+            integral_sum = integral_sum_min;
+        }
+
+        last_setpoint = reference;
+
+        timer.reset();
+        return (error * outputGain) + integral_sum * Ki;
+
     }
 
 

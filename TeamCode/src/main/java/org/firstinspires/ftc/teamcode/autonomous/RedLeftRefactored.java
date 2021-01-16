@@ -176,7 +176,7 @@ public class RedLeftRefactored extends auto {
 
 
                     wobble_goal_spot = new position(105.5,9,Math.toRadians(180));
-                    second_wobble_goal = new position(28,-23,Math.toRadians(0));
+                    second_wobble_goal = new position(28,-21,Math.toRadians(0));
                     break;
                 default:
 
@@ -280,7 +280,7 @@ public class RedLeftRefactored extends auto {
                     break;
                 case DRIVE_TO_WOBBLE_ZONE:
                     shooterServoState = shooter_servo_states.IGNORE;
-                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() + 2.5,wobble_goal_spot.getY() + 5,wobble_goal_spot.getAngleRadians()), 3)) {
+                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() + 0,wobble_goal_spot.getY() + 5,wobble_goal_spot.getAngleRadians()), 3)) {
                         AUTO_STATE = auto_states.PLACE_WOBBLE_GOAL;
                         timeOfWobbleDelivery1Start = System.currentTimeMillis();
                         robot.drive.STOP();
@@ -358,7 +358,7 @@ public class RedLeftRefactored extends auto {
 
                 case PLACE_WOBBLE_GOAL_2:
 
-                    poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 2,wobble_goal_spot.getY() ,wobble_goal_spot.getAngleRadians()),3);
+                    poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 7,wobble_goal_spot.getY() ,wobble_goal_spot.getAngleRadians()),3);
 
                     if (System.currentTimeMillis() - timeOfWobbleDelivery1Start > 350) {
                         robot.setClawLynxOptimized(robot.CLAW_OPEN);

@@ -12,9 +12,9 @@ public class LQRMotionProfiledPoseStabalizationController extends MotionProfiled
     protected double LQR_K = 7.234;
     protected double LQR_Kr = LQR_K;
     protected double LQR_scaler = 0.01;
-
-    OneDimensionalLQRController translationLQR = new OneDimensionalLQRController(LQR_K,LQR_Kr,LQR_scaler);
-
+    protected double ki = 0.10;
+    OneDimensionalLQRController translationLQRx = new OneDimensionalLQRController(LQR_K,LQR_Kr,LQR_scaler,ki);
+    OneDimensionalLQRController translationLQRy = new OneDimensionalLQRController(LQR_K,LQR_Kr,LQR_scaler,ki);
 
     public LQRMotionProfiledPoseStabalizationController(RobotClass robot) {
         super(robot);
@@ -46,6 +46,8 @@ public class LQRMotionProfiledPoseStabalizationController extends MotionProfiled
         double currentTime = (double) System.currentTimeMillis() / 1000;
 
 
+
+
         robot.xError = targetPose.getX() - robotPose.getX();
         robot.yError = targetPose.getY() - robotPose.getY();
 
@@ -57,8 +59,9 @@ public class LQRMotionProfiledPoseStabalizationController extends MotionProfiled
 
         double d_error_heading = (headingError - last_error_angle) / (currentTime - timeOfLastupdate);
 
-        xPower = translationLQR.outputLQR(targetPose.getX(),robotPose.getX());
-        yPower = translationLQR.outputLQR(targetPose.getY(),robotPose.getY());
+        xPower = translationLQRx.outputLQR(targetPose.getX(),robotPose.getX()) * powerScaler;
+        yPower = translationLQRy.outputLQR(targetPose.getY(),robotPose.getY()) * powerScaler;
+
         yPower = -yPower;
         turnPower = ((headingError * kpTurn) + (d_error_heading * kdTurn)) * powerScaler;
 

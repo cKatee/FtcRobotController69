@@ -1,17 +1,24 @@
 package org.firstinspires.ftc.teamcode.testOpModes;
 
 import com.acmerobotics.roadrunner.geometry.Pose2d;
+import com.qualcomm.hardware.bosch.BNO055IMU;
 import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 import com.qualcomm.robotcore.eventloop.opmode.LinearOpMode;
 
+import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
+import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.navigation.Acceleration;
+import org.firstinspires.ftc.robotcore.external.navigation.Orientation;
 import org.firstinspires.ftc.teamcode.RobotClass;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
 
-@Autonomous
+@TeleOp
 public class printPosition extends LinearOpMode {
 
     private RobotClass robot;
+    private BNO055IMU imu;
+
+    BNO055IMU.Parameters IMU_Parameters;
 
     @Override
     public void runOpMode() {
@@ -21,33 +28,46 @@ public class printPosition extends LinearOpMode {
         SampleMecanumDrive roadrunnerOdometry = new SampleMecanumDrive(hardwareMap);
         robot = new RobotClass();
         robot.init(hardwareMap);
+        imu = hardwareMap.get(BNO055IMU.class, "imu");
+        IMU_Parameters = new BNO055IMU.Parameters();
+
+        IMU_Parameters.mode = BNO055IMU.SensorMode.IMU;
+        // Create an IMU parameters object.
+        IMU_Parameters = new BNO055IMU.Parameters();
+
+
+        // Set the IMU sensor mode to IMU. This mode uses
+        // the IMU gyroscope and accelerometer to
+        // calculate the relative orientation of hub and
+        // therefore the robot.
+        IMU_Parameters.mode = BNO055IMU.SensorMode.IMU;
+        // Intialize the IMU using parameters object.
+        imu.initialize(IMU_Parameters);
+        // Report the initialization to the Driver Station.
+
+
+        // Loop until IMU has been calibrated.
+        while (!IMU_Calibrated()) {
+
+        }
 
         waitForStartReady();
-        double loopTime = (double)System.currentTimeMillis() / 1000;
-        double startTime = (double)System.currentTimeMillis() / 1000;
+        ElapsedTime timer = new ElapsedTime();
         while (opModeIsActive()) {
 
+            timer.reset();
             roadrunnerOdometry.updatePoseEstimate();
-/*
+
             Pose2d pose = roadrunnerOdometry.getPoseEstimate();
-            Acceleration accel = robot.imu.getLinearAcceleration();
+            Acceleration accel = imu.getLinearAcceleration();
+            Orientation gyroOut = imu.getAngularOrientation();
             robot.robotPose.setPose2dRoadRunner(pose);
-            robot.FieldRelative(1,0,0);
-            telemetry.addData("x",pose.getX());
-            telemetry.addData("y",pose.getY());
-            telemetry.addData("odom angle",Math.toDegrees(pose.getHeading()) - 180);
-            telemetry.addData("IMU",Math.toDegrees(robot.getAngleIMU()));
-            telemetry.addData("heading error",robot.headingError);
-            telemetry.addData("x Power",robot.xPower);
-            telemetry.addData("y Power",robot.yPower);
-            telemetry.addData("turn Power",robot.turnPower);
-            telemetry.update();
-            double currentTime = ((double)System.currentTimeMillis() / 1000) - loopTime;
-            System.out.println("" + pose.getX() + ", " +pose.getY() + ", " + currentTime + ", " + accel.xAccel + ", " + accel.yAccel + ", " + (System.currentTimeMillis() - startTime));
+            robot.FieldRelative(-gamepad1.left_stick_y,gamepad1.left_stick_x,gamepad1.right_stick_x);
+            double currentTime = timer.milliseconds() / 1000;
+            System.out.println("" + pose.getX() + ", " +pose.getY() + ", " + currentTime + ", " + accel.xAccel + ", " + accel.yAccel + ", " + gyroOut.firstAngle + ", " + gyroOut.secondAngle + ", " + gyroOut.thirdAngle);
 
-            loopTime = (double)System.currentTimeMillis() / 1000;
 
- */
+
 
         }
 
@@ -59,5 +79,7 @@ public class printPosition extends LinearOpMode {
         telemetry.update();
         waitForStart();
     }
-
+    private boolean IMU_Calibrated() {
+        return imu.isGyroCalibrated();
+    }
 }

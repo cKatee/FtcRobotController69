@@ -8,6 +8,7 @@ import com.qualcomm.robotcore.eventloop.opmode.TeleOp;
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.teamcode.RobotClass;
 import org.firstinspires.ftc.teamcode.autonomous.RedLeftRefactored;
+import org.firstinspires.ftc.teamcode.controllers.LQRMotionProfiledPoseStabalizationController;
 import org.firstinspires.ftc.teamcode.controllers.MotionProfiledPoseStablization;
 import org.firstinspires.ftc.teamcode.geometry.position;
 import org.firstinspires.ftc.teamcode.roadrunnerquickstart.SampleMecanumDrive;
@@ -68,7 +69,7 @@ public class teleop extends LinearOpMode {
     @Override
     public void runOpMode() throws InterruptedException {
 
-        MotionProfiledPoseStablization MotionProfiledController = new MotionProfiledPoseStablization(robot);
+        LQRMotionProfiledPoseStabalizationController MotionProfiledController = new LQRMotionProfiledPoseStabalizationController(robot);
         SampleMecanumDrive roadrunnerOdometry = new SampleMecanumDrive(hardwareMap);
         roadrunnerOdometry.setPoseEstimate(new Pose2d(0,0,Math.toRadians(180)));
         robot = new RobotClass();
@@ -77,9 +78,6 @@ public class teleop extends LinearOpMode {
         telemetry.addData("ready to start","Press play!");
         telemetry.update();
         waitForStart();
-        double dumb_servo = 1;
-
-        List<LynxModule> allHubs = hardwareMap.getAll(LynxModule.class);
 
 
         while (opModeIsActive()) {

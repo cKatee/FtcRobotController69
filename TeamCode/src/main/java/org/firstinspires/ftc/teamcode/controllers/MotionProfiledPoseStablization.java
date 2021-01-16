@@ -32,6 +32,8 @@ public class MotionProfiledPoseStablization extends PoseStablizationController {
     // the amount we scale the power by inorder to speedramp; init to rate_of_accel because its a small non-0 number.
     protected double powerScaler = rate_of_acceleration;
 
+    protected double minimum_power = 0.1;
+
 
 
     public MotionProfiledPoseStablization(RobotClass robot) {
