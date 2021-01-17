@@ -5,7 +5,7 @@ import com.qualcomm.robotcore.eventloop.opmode.Autonomous;
 
 import com.qualcomm.robotcore.util.ElapsedTime;
 import org.firstinspires.ftc.robotcore.external.hardware.camera.WebcamName;
-import org.firstinspires.ftc.teamcode.controllers.MotionProfiledPoseStablization;
+import org.firstinspires.ftc.teamcode.controllers.LQRMotionProfiledPoseStabalizationController;
 import org.firstinspires.ftc.teamcode.controllers.pathFollower;
 import org.firstinspires.ftc.teamcode.geometry.path;
 import org.firstinspires.ftc.teamcode.geometry.pathPosition;
@@ -26,10 +26,10 @@ public class RedLeftRefactored extends auto {
     private auto_states AUTO_STATE = auto_states.START;
     private position start_position = new position(0,0,Math.toRadians(0));
     private position high_goal_so_we_miss_starting_stack = new position(60,6,Math.toRadians(180));
-    private position high_goal_general_position = new position(64,-9,Math.toRadians(-172));
+    private position high_goal_general_position = new position(64,-5,Math.toRadians(-172));
     private position beyond_high_goal_spot = new position(high_goal_general_position.getX() + 6, high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
 
-    private position powershot_general_position = new position(63,-34,Math.toRadians(-174));
+    private position powershot_general_position = new position(63,-30,Math.toRadians(-174));
     private position high_goal_1 = new position(high_goal_general_position.getX(),high_goal_general_position.getY() ,high_goal_general_position.getAngleRadians());
     private position high_goal_2 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
     private position high_goal_3 = new position(high_goal_general_position.getX(),high_goal_general_position.getY(),high_goal_general_position.getAngleRadians());
@@ -45,7 +45,9 @@ public class RedLeftRefactored extends auto {
     private position straight_behind_ring = new position(60,ring_stack.getY(),Math.toRadians(180));
     private position infront_of_ring_stack = new position(high_goal_general_position.getX(),ring_stack.getY(),ring_stack.getAngleRadians());
 
-    private path ringPickupPath = new path();
+    private path ringPickupPath4 = new path();
+
+    private path ringPickupPath1 = new path();
 
     private path pathToSecondWG = new path();
 
@@ -88,7 +90,7 @@ public class RedLeftRefactored extends auto {
     private long time_between_shots = 200;
     private RingDetector.Height stack;
 
-    private MotionProfiledPoseStablization poseStablizationController = new MotionProfiledPoseStablization(robot);
+    private LQRMotionProfiledPoseStabalizationController poseStablizationController = new LQRMotionProfiledPoseStabalizationController(robot);
     private pathFollower pathFollowingController = new pathFollower(poseStablizationController);
 
 
@@ -100,12 +102,15 @@ public class RedLeftRefactored extends auto {
 
     @Override
     public void runOpMode() {
-        ringPickupPath.addPosition(ring_stack);
-        ringPickupPath.addPosition(first_ring_of_stack);
-        ringPickupPath.addPosition(ring_stack);
-        ringPickupPath.addPosition(second_ring_of_stack);
-        ringPickupPath.addPosition(ring_stack);
-        ringPickupPath.addPosition(third_ring_of_stack);
+        ringPickupPath4.addPosition(ring_stack);
+        ringPickupPath4.addPosition(first_ring_of_stack);
+        ringPickupPath4.addPosition(ring_stack);
+        ringPickupPath4.addPosition(second_ring_of_stack);
+        ringPickupPath4.addPosition(ring_stack);
+        ringPickupPath4.addPosition(third_ring_of_stack);
+
+        ringPickupPath1.addPosition(ring_stack);
+        ringPickupPath1.addPosition(first_ring_of_stack);
 
         SampleMecanumDrive roadrunnerOdometry = new SampleMecanumDrive(hardwareMap);
         roadrunnerOdometry.setPoseEstimate(new Pose2d(0,0,Math.toRadians(180)));
@@ -133,7 +138,7 @@ public class RedLeftRefactored extends auto {
 
                     selectedShootingRPM = robot.powerShotSpeed;
                     selectedShootingTPM = robot.powerShotTicksPerMinute;
-                    high_goal_1 = new position(powershot_general_position.getX(), powershot_general_position.getY() - 5.5, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+                    high_goal_1 = new position(powershot_general_position.getX(), powershot_general_position.getY() - 7, powershot_general_position.getAngleRadians() + Math.toRadians(5));
                     high_goal_2 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 3, powershot_general_position.getAngleRadians() + Math.toRadians(5));
                     high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 11, powershot_general_position.getAngleRadians() + Math.toRadians(5));
 
@@ -155,13 +160,13 @@ public class RedLeftRefactored extends auto {
                      */
                     selectedShootingRPM = robot.powerShotSpeed;
                     selectedShootingTPM = robot.powerShotTicksPerMinute;
-                    high_goal_1 = new position(powershot_general_position.getX(), powershot_general_position.getY() - 5.5, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+                    high_goal_1 = new position(powershot_general_position.getX(), powershot_general_position.getY() - 7, powershot_general_position.getAngleRadians() + Math.toRadians(5));
                     high_goal_2 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 3, powershot_general_position.getAngleRadians() + Math.toRadians(5));
-                    high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 11, powershot_general_position.getAngleRadians() + Math.toRadians(5));
+                    high_goal_3 = new position(powershot_general_position.getX(), powershot_general_position.getY() + 9, powershot_general_position.getAngleRadians() + Math.toRadians(5));
 
 
-                    second_wobble_goal = new position(27,-27,Math.toRadians(0));
-                    wobble_goal_spot = new position(87.5,-9,Math.toRadians(180));
+                    second_wobble_goal = new position(28,-21,Math.toRadians(0));
+                    wobble_goal_spot = new position(82.5,-12,Math.toRadians(180));
                     break;
                 case FOUR:
 
@@ -175,7 +180,7 @@ public class RedLeftRefactored extends auto {
 
 
 
-                    wobble_goal_spot = new position(105.5,9,Math.toRadians(180));
+                    wobble_goal_spot = new position(105.5,11,Math.toRadians(180));
                     second_wobble_goal = new position(28,-21,Math.toRadians(0));
                     break;
                 default:
@@ -221,7 +226,7 @@ public class RedLeftRefactored extends auto {
 
                     break;
                 case DRIVE_TO_POWER_SHOT:
-                    if (poseStablizationController.goToPosition(high_goal_general_position, 2)) {
+                    if (poseStablizationController.goToPosition(high_goal_general_position, 4)) {
                         AUTO_STATE = auto_states.SHOOT_FIRST_POWER_SHOT;
                         robot.drive.STOP();
                         timer.reset();
@@ -229,9 +234,9 @@ public class RedLeftRefactored extends auto {
                     robot.shooter.setVelocity(selectedShootingTPM);
                     break;
                 case SHOOT_FIRST_POWER_SHOT:
-                    poseStablizationController.goToPosition(high_goal_1, 1.35);
+                    poseStablizationController.goToPosition(high_goal_1, 0);
 
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_1,1.8) && timer.milliseconds() > 200 && !has_moved_servo_out) {
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_1,2) && timer.milliseconds() > 200 && !has_moved_servo_out) {
                         shooterServoState = shooter_servo_states.OUT;
                         has_moved_servo_out = true;
                         timer.reset();
@@ -246,8 +251,8 @@ public class RedLeftRefactored extends auto {
 
                     break;
                 case SHOOT_SECOND_POWER_SHOT:
-                    poseStablizationController.goToPosition(high_goal_2,1.35);
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_2,1.8) && timer.milliseconds() > 200 && !has_moved_servo_out) {
+                    poseStablizationController.goToPosition(high_goal_2,0);
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_2,2) && timer.milliseconds() > 200 && !has_moved_servo_out) {
                         shooterServoState = shooter_servo_states.OUT;
                         has_moved_servo_out = true;
                         timer.reset();
@@ -262,8 +267,8 @@ public class RedLeftRefactored extends auto {
 
                     break;
                 case SHOOT_THIRD_POWER_SHOT:
-                    poseStablizationController.goToPosition(high_goal_3, 1.35);
-                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_3,1.8) && timer.milliseconds() > 200 && !has_moved_servo_out) {
+                    poseStablizationController.goToPosition(high_goal_3, 0);
+                    if (((robot.shooter.getVelocity() / 28) * 60) > selectedShootingRPM - 80 && poseStablizationController.isRobotWithinAllowedTolerance(high_goal_3,2) && timer.milliseconds() > 200 && !has_moved_servo_out) {
                         shooterServoState = shooter_servo_states.OUT;
                         has_moved_servo_out = true;
                         timer.reset();
@@ -280,7 +285,7 @@ public class RedLeftRefactored extends auto {
                     break;
                 case DRIVE_TO_WOBBLE_ZONE:
                     shooterServoState = shooter_servo_states.IGNORE;
-                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() + 0,wobble_goal_spot.getY() + 5,wobble_goal_spot.getAngleRadians()), 3)) {
+                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() + 2,wobble_goal_spot.getY() + 5,wobble_goal_spot.getAngleRadians()), 3)) {
                         AUTO_STATE = auto_states.PLACE_WOBBLE_GOAL;
                         timeOfWobbleDelivery1Start = System.currentTimeMillis();
                         robot.drive.STOP();
@@ -347,7 +352,7 @@ public class RedLeftRefactored extends auto {
 
 
                     robot.wrist.setPosition(robot.WRIST_FOR_PLACING_OUTSIDE);
-                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 2,wobble_goal_spot.getY() ,wobble_goal_spot.getAngleRadians()), 3)) {
+                    if (poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 5,wobble_goal_spot.getY() -5,wobble_goal_spot.getAngleRadians()), 3)) {
                         AUTO_STATE = auto_states.PLACE_WOBBLE_GOAL_2;
                         timeOfWobbleDelivery1Start = System.currentTimeMillis();
                         robot.drive.STOP();
@@ -358,9 +363,9 @@ public class RedLeftRefactored extends auto {
 
                 case PLACE_WOBBLE_GOAL_2:
 
-                    poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 7,wobble_goal_spot.getY() ,wobble_goal_spot.getAngleRadians()),3);
+                    poseStablizationController.goToPosition(new position(wobble_goal_spot.getX() - 5,wobble_goal_spot.getY() -5,wobble_goal_spot.getAngleRadians()),3);
 
-                    if (System.currentTimeMillis() - timeOfWobbleDelivery1Start > 350) {
+                    if (System.currentTimeMillis() - timeOfWobbleDelivery1Start > 100) {
                         robot.setClawLynxOptimized(robot.CLAW_OPEN);
                     }
 
@@ -396,7 +401,11 @@ public class RedLeftRefactored extends auto {
                 case GO_INFRONT_OF_RING:
                     if (poseStablizationController.goToPosition(infront_of_ring_stack,3)) {
                         AUTO_STATE = auto_states.PICK_UP_SECOND_RING;
-                        pathFollowingController.setTargetPath(ringPickupPath);
+                        if (stack.equals(RingDetector.Height.FOUR)) {
+                            pathFollowingController.setTargetPath(ringPickupPath4);
+                        } else {
+                            pathFollowingController.setTargetPath(ringPickupPath1);
+                        }
                     }
                     break;
                 case PICK_UP_SECOND_RING:

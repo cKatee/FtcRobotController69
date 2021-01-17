@@ -9,6 +9,7 @@ import static org.firstinspires.ftc.teamcode.RobotClass.*;
 public class PoseStablizationController {
     protected double kp = 17.1 * 0.01; // TODO: run printPosition with a 14v battery and get the fastest case transfer function
     double kd = 0.12627 * 0.06;
+    protected double ki = 0.11;
     double kpTurn = 2.8;
     double kdTurn = 0;
     protected RobotClass robot;
@@ -16,7 +17,6 @@ public class PoseStablizationController {
     protected double last_error_y = 0;
     protected double last_error_angle = 0;
     protected double timeOfLastupdate = 0;
-
     public position current_target_position = new position(0,0,0);
 
     public PoseStablizationController(RobotClass robot) {
@@ -29,6 +29,7 @@ public class PoseStablizationController {
      * @param targetPose
      */
     public void updateMovement(position targetPose) {
+
 
         current_target_position = targetPose;
 

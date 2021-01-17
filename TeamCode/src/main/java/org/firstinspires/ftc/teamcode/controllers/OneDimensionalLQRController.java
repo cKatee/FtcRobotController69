@@ -22,6 +22,13 @@ public class OneDimensionalLQRController {
 
     private double last_setpoint = 0;
 
+
+    double kd = 0.12627 * 0.06;
+
+    double last_error = 0;
+
+
+
     ElapsedTime timer = new ElapsedTime();
     /**
      * constructor pogg
@@ -72,10 +79,14 @@ public class OneDimensionalLQRController {
             integral_sum = integral_sum_min;
         }
 
+        double state_error = (reference - state);
+        double derivative = state_error - last_error / timer.milliseconds();
+        last_error = (reference - state);
+
         last_setpoint = reference;
 
         timer.reset();
-        return (error * outputGain) + integral_sum * Ki;
+        return (error * outputGain) + (integral_sum * Ki) + (derivative *kd);
 
     }
 

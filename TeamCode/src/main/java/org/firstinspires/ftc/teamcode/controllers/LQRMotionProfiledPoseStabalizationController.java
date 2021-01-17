@@ -9,10 +9,11 @@ import static org.firstinspires.ftc.teamcode.RobotClass.headingError;
 
 public class LQRMotionProfiledPoseStabalizationController extends MotionProfiledPoseStablization {
 
-    protected double LQR_K = 7.234;
+    protected double LQR_K = 7.234 * 1.1;
     protected double LQR_Kr = LQR_K;
     protected double LQR_scaler = 0.01;
-    protected double ki = 0.10;
+    protected double ki = 0.110;
+
     OneDimensionalLQRController translationLQRx = new OneDimensionalLQRController(LQR_K,LQR_Kr,LQR_scaler,ki);
     OneDimensionalLQRController translationLQRy = new OneDimensionalLQRController(LQR_K,LQR_Kr,LQR_scaler,ki);
 

@@ -9,6 +9,8 @@ import static org.firstinspires.ftc.teamcode.RobotClass.headingError;
 
 public class MotionProfiledPoseStablization extends PoseStablizationController {
 
+
+    private double integral_sum = 0;
     // time that the last update occured at
     protected double time_of_last_update = 0;
 
@@ -20,9 +22,17 @@ public class MotionProfiledPoseStablization extends PoseStablizationController {
     protected double loop_time_est = 23;
 
     // time in milliseconds we take to accelerate
-    protected double acceleration_time = 825;
+    protected double acceleration_time = 450;
 
     // time of starting the pose motion profiled move
+    private double integral_sum_x = 0;
+    private double integral_sum_y = 0;
+
+    private double integral_sum_max = 1;
+    private double integral_sum_min = -integral_sum_max;
+
+    private position last_position = new position(0,0,0);
+
 
     protected double startTime = 0;
 
@@ -43,6 +53,13 @@ public class MotionProfiledPoseStablization extends PoseStablizationController {
 
 
     public boolean goToPosition(position targetPose, double tolerance) {
+        if (targetPose.getX() != last_position.getX()) {
+            integral_sum_x = 0;
+        }
+        if (targetPose.getY() != last_position.getY()) {
+            integral_sum_y = 0;
+        }
+
 
         if (hasStarted) {
             double time = System.currentTimeMillis();
